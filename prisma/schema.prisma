@@ -10,14 +10,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             Int     @id @default(autoincrement())
-  name           String
-  lastname       String
-  identification Int
-  role           String
-  code           String
-  email          String  @unique
-  password       String
-  state          Boolean @default(true)
+model user {
+  user_id               Int                     @id @default(autoincrement())
+  name                  String
+  lastname              String
+  identification        Int                     @unique
+  role                  String
+  code                  String                  @unique
+  email                 String                  @unique
+  password              String
+  state                 Boolean                 @default(true)
+  reset_password_token  String?
+  professor_especiality professor_especiality[]
+}
+
+model speciality {
+  speciality_id         Int                     @id @default(autoincrement())
+  description           String                  @unique
+  state                 Boolean                 @default(true)
+  Professor_especiality professor_especiality[]
+  location_speciality   location_speciality[]
+}
+
+model professor_especiality {
+  professor_especiality_id Int        @id @default(autoincrement())
+  user_id                  Int
+  speciality_id            Int
+  state                    Boolean    @default(true)
+  user                     user       @relation(fields: [user_id], references: [user_id])
+  speciality               speciality @relation(fields: [speciality_id], references: [speciality_id])
+}
+
+model location {
+  location_id         Int                   @id @default(autoincrement())
+  name                String                @unique
+  adress              String
+  city                String
+  total_capacity      Int
+  complexity          String
+  state               Boolean               @default(true)
+  location_speciality location_speciality[]
+}
+
+model location_speciality {
+  location_speciality_id Int        @id @default(autoincrement())
+  location_id            Int
+  speciality_id          Int
+  limit_capacity         Int
+  state                  Boolean    @default(true)
+  location               location   @relation(fields: [location_id], references: [location_id])
+  speciality             speciality @relation(fields: [speciality_id], references: [speciality_id])
 }
