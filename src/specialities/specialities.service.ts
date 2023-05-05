@@ -2,10 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSpecialityDto } from './dto/create-speciality.dto';
 import { UpdateSpecialityDto } from './dto/update-speciality.dto';
 import { PrismaService } from 'src/prisma.service';
+import { FindSpecialitiesDto } from './dto/find-specilities.dto';
 
 @Injectable()
 export class SpecialitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createSpecialityDto: CreateSpecialityDto) {
     const specialityExists = await this.prisma.speciality.findUnique({
       where: {
@@ -29,32 +30,36 @@ export class SpecialitiesService {
     };
   }
 
-  async findAll(description: string) {
+  async findAll(findSpecialitiesDto: FindSpecialitiesDto) {
     return await this.prisma.speciality.findMany({
       where: {
         description: {
-          contains: description,
+          contains: findSpecialitiesDto.description,
+          mode: 'insensitive',
         },
+        state: findSpecialitiesDto.state,
       },
       orderBy: {
-        description: 'desc',
+        description: 'asc',
       },
     });
   }
 
   async findAllPagination(
-    descripction: string,
+    findSpecialitiesDto: FindSpecialitiesDto,
     page: number,
     quantity: number,
   ) {
     return await this.prisma.speciality.findMany({
       where: {
         description: {
-          contains: descripction,
+          contains: findSpecialitiesDto.description,
+          mode: 'insensitive',
         },
+        state: findSpecialitiesDto.state,
       },
       orderBy: {
-        description: 'desc',
+        description: 'asc',
       },
       skip: page * quantity,
       take: quantity,
@@ -107,19 +112,18 @@ export class SpecialitiesService {
           HttpStatus.BAD_REQUEST,
         );
       }
-
-      await this.prisma.speciality.update({
-        where: {
-          speciality_id,
-        },
-        data: {
-          description: updateSpecialityDto.description,
-        },
-      });
-      return {
-        message: 'Especialidad actualizada satisfactoriamente',
-      };
     }
+
+    await this.prisma.speciality.update({
+      where: {
+        speciality_id,
+      },
+      data: updateSpecialityDto,
+    });
+
+    return {
+      message: 'Especialidad actualizada satisfactoriamente',
+    };
   }
 
   async remove(speciality_id: number) {

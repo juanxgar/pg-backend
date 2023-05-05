@@ -97,7 +97,7 @@ export class UsersService {
         },
       },
       orderBy: {
-        name: 'desc',
+        name: 'asc',
       },
     });
   }
@@ -126,7 +126,7 @@ export class UsersService {
         },
       },
       orderBy: {
-        name: 'desc',
+        name: 'asc',
       },
       skip: page * quantity,
       take: quantity,

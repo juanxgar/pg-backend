@@ -18,8 +18,6 @@ export class MailService {
       },
     });
 
-    console.log('estoy aqui');
-
     return {
       message: 'Correo enviado satisfactoriamente',
     };
