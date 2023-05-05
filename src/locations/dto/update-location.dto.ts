@@ -1,22 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { UpdateLocationSpecialityDto } from './update-location-speciality.dto';
+import { PartialType } from '@nestjs/swagger';
+import { CreateLocationDto } from './create-location.dto';
 
-export class UpdateLocationDto {
-    @ApiProperty()
-    name: string;
-
-    @ApiProperty()
-    adress: string;
-
-    @ApiProperty()
-    city: string;
-
-    @ApiProperty()
-    total_capacity: number;
-
-    @ApiProperty()
-    complexity: string;
-
-    @ApiProperty()
-    specialities: Array<UpdateLocationSpecialityDto>;
-}
+export class UpdateLocationDto extends PartialType(CreateLocationDto) {}

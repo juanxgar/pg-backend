@@ -19,11 +19,10 @@ import {
   ApiOperation,
   ApiAcceptedResponse,
 } from '@nestjs/swagger';
-import { FindSpecialitiesDto } from './dto/find-specilities.dto';
 
 @Controller('specialities')
 export class SpecialitiesController {
-  constructor(private readonly specialitiesService: SpecialitiesService) { }
+  constructor(private readonly specialitiesService: SpecialitiesService) {}
 
   @Post()
   @ApiCreatedResponse({ description: 'Created Succesfully' })
@@ -46,8 +45,8 @@ export class SpecialitiesController {
     summary: 'Consulta de especialidades',
     description: 'Consulta de especialidades registradas',
   })
-  findAll(@Body() findSpecialitiesDto: FindSpecialitiesDto) {
-    return this.specialitiesService.findAll(findSpecialitiesDto);
+  findAll(@Query('description') description: string) {
+    return this.specialitiesService.findAll(description);
   }
 
   @Get('/pagination')
@@ -59,25 +58,18 @@ export class SpecialitiesController {
     description: 'Consulta de especialidades registradas con paginación',
   })
   findAllPagination(
-    @Body() findSpecialitiesDto: FindSpecialitiesDto,
+    @Query('description') description: string,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10',
   ) {
     return this.specialitiesService.findAllPagination(
-      findSpecialitiesDto,
+      description,
       +page,
       +quantity,
     );
   }
 
   @Get(':id')
-  @ApiAcceptedResponse({ description: 'OK response' })
-  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
-  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
-  @ApiOperation({
-    summary: 'Consulta de especialidad',
-    description: 'Consulta de especialidad en específico',
-  })
   findOne(@Param('id') id: string) {
     return this.specialitiesService.findOne(+id);
   }

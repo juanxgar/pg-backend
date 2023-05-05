@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateLocationSpecialityDto } from './create-location-speciality.dto';
+import { LocationSpecialityDto } from './location-speciality.dto';
 
 export class CreateLocationDto {
   @ApiProperty()
@@ -18,5 +18,5 @@ export class CreateLocationDto {
   complexity: string;
 
   @ApiProperty()
-  specialities: Array<CreateLocationSpecialityDto>;
+  specialities: Array<LocationSpecialityDto>;
 }
