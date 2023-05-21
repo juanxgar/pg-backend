@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { UpdateLocationSpecialityDto } from './update-location-speciality.dto';
 
 export class UpdateLocationDto {

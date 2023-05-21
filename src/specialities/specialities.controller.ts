@@ -18,9 +18,13 @@ import {
   ApiForbiddenResponse,
   ApiOperation,
   ApiAcceptedResponse,
+  ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { FindSpecialitiesDto } from './dto/find-specilities.dto';
 
+@ApiBearerAuth()
+@ApiTags('Specialities')
 @Controller('specialities')
 export class SpecialitiesController {
   constructor(private readonly specialitiesService: SpecialitiesService) { }
@@ -30,9 +34,9 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Creacion de especialidades',
+    summary: 'Creation of speciality',
     description:
-      'Registro de especialidades en la base de datos a partir del DTO',
+      'Registration of a speciality based on its DTO',
   })
   create(@Body() createSpecialityDto: CreateSpecialityDto) {
     return this.specialitiesService.create(createSpecialityDto);
@@ -43,8 +47,8 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de especialidades',
-    description: 'Consulta de especialidades registradas',
+    summary: 'Consultation of specialities',
+    description: 'Consultation of registered specialities',
   })
   findAll(@Body() findSpecialitiesDto: FindSpecialitiesDto) {
     return this.specialitiesService.findAll(findSpecialitiesDto);
@@ -55,8 +59,8 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de especialidades con paginación',
-    description: 'Consulta de especialidades registradas con paginación',
+    summary: 'Consultation of specialities with pagination',
+    description: 'Consultation of registered specialities with pagination',
   })
   findAllPagination(
     @Body() findSpecialitiesDto: FindSpecialitiesDto,
@@ -75,8 +79,8 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de especialidad',
-    description: 'Consulta de especialidad en específico',
+    summary: 'Consultation of a specific speciality',
+    description: 'Consultation of a specific speciality based on its id',
   })
   findOne(@Param('id') id: string) {
     return this.specialitiesService.findOne(+id);
@@ -87,9 +91,9 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Actualización de especialidad en específico',
+    summary: 'Update of a specific speciality',
     description:
-      'Actualización de especialidad en específico en la base de datos a partir del DTO',
+      'Upddate of a specific speciality based on its DTO and id',
   })
   update(
     @Param('id') id: string,
@@ -103,9 +107,9 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Eliminación de especialidad en específico',
+    summary: 'Elimination of a specific specility',
     description:
-      'Eliminación de especialidad en específico en la base de datos a partir de su id',
+      'Elimintation of a specific speciality based on its id',
   })
   remove(@Param('id') id: string) {
     return this.specialitiesService.remove(+id);
@@ -116,9 +120,9 @@ export class SpecialitiesController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Desactivación/Activación de especialidad en específico',
+    summary: 'Deactivation/Activation of a specific speciality',
     description:
-      'Desactivación/Activacion de especiaidad en específico en la base de datos a partir de su id',
+      'Deactivation/Activation of a specific speciality based on its id',
   })
   changeState(@Param('id') id: string) {
     return this.specialitiesService.changeState(+id);

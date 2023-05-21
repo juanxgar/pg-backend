@@ -10,12 +10,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('DOCUMENTACIÓN')
+    .setTitle('GRADUATION PROJECT DOCUMENTATION')
     .setDescription(
-      'Documentación de proyecto para gestión de estudiantes de medicina en internado',
+      'Project documentation for the management of medical students in internships',
     )
     .setVersion('1.0')
-    .addTag('API')
+    .addBearerAuth()
     .build();
 
   const options: SwaggerDocumentOptions = {
@@ -23,7 +23,13 @@ async function bootstrap() {
   };
   const document = SwaggerModule.createDocument(app, config, options);
 
-  SwaggerModule.setup('api_documentation', app, document);
+  SwaggerModule.setup('api_documentation', app, document, {
+    swaggerOptions: {
+      tagsSorter: 'alpha',
+      operationSorter: 'alpha',
+      docExpansion: 'none',
+    }
+  });
 
   await app.listen(process.env.PORT || 3000);
 }

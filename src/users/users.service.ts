@@ -3,10 +3,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindUsersDto } from './dto/find-users.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createUser: CreateUserDto) {
     let userAlreadyExists = await this.prisma.user.findUnique({
@@ -59,7 +60,7 @@ export class UsersService {
             description: speciality,
           },
         });
-        await this.prisma.professor_especiality.create({
+        await this.prisma.professor_speciality.create({
           data: {
             user_id: user.user_id,
             speciality_id: specialityUser.speciality_id,
@@ -78,7 +79,7 @@ export class UsersService {
     };
   }
 
-  async findAll(role: string, name: string) {
+  async findAll(findUsersDto: FindUsersDto) {
     return await this.prisma.user.findMany({
       select: {
         user_id: true,
@@ -91,10 +92,27 @@ export class UsersService {
         state: true,
       },
       where: {
-        role,
         name: {
-          contains: name,
+          contains: findUsersDto.name,
+          mode: 'insensitive',
         },
+        lastname: {
+          contains: findUsersDto.lastname,
+          mode: 'insensitive',
+        },
+        code: {
+          contains: findUsersDto.code,
+          mode: 'insensitive',
+        },
+        email: {
+          contains: findUsersDto.email,
+          mode: 'insensitive',
+        },
+        role: {
+          contains: findUsersDto.role,
+          mode: 'insensitive',
+        },
+        identification: findUsersDto.identification,
       },
       orderBy: {
         name: 'asc',
@@ -103,8 +121,7 @@ export class UsersService {
   }
 
   async findAllPagination(
-    role: string,
-    name: string,
+    findUsersDto: FindUsersDto,
     page: number,
     quantity: number,
   ) {
@@ -120,7 +137,47 @@ export class UsersService {
         state: true,
       },
       where: {
-        role,
+        name: {
+          contains: findUsersDto.name,
+          mode: 'insensitive',
+        },
+        lastname: {
+          contains: findUsersDto.lastname,
+          mode: 'insensitive',
+        },
+        code: {
+          contains: findUsersDto.code,
+          mode: 'insensitive',
+        },
+        email: {
+          contains: findUsersDto.email,
+          mode: 'insensitive',
+        },
+        role: {
+          contains: findUsersDto.role,
+          mode: 'insensitive',
+        },
+        identification: findUsersDto.identification,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      skip: page * quantity,
+      take: quantity,
+    });
+  }
+
+  async findActiveStudents(name: string) {
+    return await this.prisma.user.findMany({
+      select: {
+        name: true,
+        lastname: true,
+        code: true,
+        state: true,
+      },
+      where: {
+        state: true,
+        role: "Estudiante",
         name: {
           contains: name,
         },
@@ -128,8 +185,27 @@ export class UsersService {
       orderBy: {
         name: 'asc',
       },
-      skip: page * quantity,
-      take: quantity,
+    });
+  }
+
+  async findActiveProfessors(name: string) {
+    return await this.prisma.user.findMany({
+      select: {
+        name: true,
+        lastname: true,
+        code: true,
+        state: true,
+      },
+      where: {
+        state: true,
+        role: "Profesor",
+        name: {
+          contains: name,
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
     });
   }
 

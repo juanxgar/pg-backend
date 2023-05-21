@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiAcceptedResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOperation,
@@ -21,55 +22,52 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindUsersDto } from './dto/find-users.dto';
 
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
-
+@ApiBearerAuth()
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  @Public()
   @Post()
   @ApiCreatedResponse({ description: 'Created Succesfully' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Creacion de usuarios',
-    description: 'Registro de usuarios en la base de datos a partir del DTO',
+    summary: 'Creation of a user',
+    description: 'Registration of users',
   })
   create(@Body() createUser: CreateUserDto) {
     return this.usersService.create(createUser);
   }
 
-  @Get()
+  @Post('/all')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de usuarios',
-    description: 'Consulta de usuarios registrados',
+    summary: 'Consultation of user',
+    description: 'Consultation of registered users',
   })
-  findAll(@Query('role') role: string, @Query('name') name: string) {
-    return this.usersService.findAll(role, name);
+  findAll(@Body() findUsersDto: FindUsersDto) {
+    return this.usersService.findAll(findUsersDto);
   }
 
-  @Get('/pagination')
+  @Post('/pagination')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de usuarios con paginación',
-    description: 'Consulta de usuarios registrados con paginación',
+    summary: 'Consultation of users with pagination',
+    description: 'Consultation of registered users with pagination',
   })
   findAllPagination(
-    @Query('role') role: string,
-    @Query('name') name: string,
+    @Body() findUsersDto: FindUsersDto,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10',
   ) {
-    return this.usersService.findAllPagination(role, name, +page, +quantity);
+    return this.usersService.findAllPagination(findUsersDto, +page, +quantity);
   }
 
   @Get(':id')
@@ -77,8 +75,8 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consulta de usuario en específico',
-    description: 'Consulta de usuario registrado en específico',
+    summary: 'Consulting of a specific user',
+    description: 'Consultation of a specific user based on its id',
   })
   findOne(@Param('id') id: string) {
     const idUser = Number(id);
@@ -90,9 +88,9 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Actualización de usuario en específico',
+    summary: 'Update of a specific user',
     description:
-      'Actualización de usuario en específico en la base de datos a partir del DTO',
+      'Update of a specific user based on its id',
   })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
@@ -103,9 +101,9 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Eliminación de usuario en específico',
+    summary: 'Elimination of a specific user',
     description:
-      'Eliminación de usuario en específico en la base de datos a partir de su id',
+      'Elimination of a specific user based on its id',
   })
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
@@ -116,9 +114,9 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Desactivación/Activacion de usuario en específico',
+    summary: 'Deactivation/Activation of a specific user',
     description:
-      'Desactivación/Activacion de usuario en específico en la base de datos a partir de su id',
+      'Deactivation/Activation of a specific user based on its id',
   })
   changeState(@Param('id') id: string) {
     return this.usersService.changeState(+id);

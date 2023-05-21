@@ -14,7 +14,7 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   async signIn(loginDto: LoginDto) {
     const user = await this.prisma.user.findUnique({
@@ -85,7 +85,7 @@ export class AuthService {
     }
     const hashPassword = await bcrypt.hash(newPasswordDto.password, 10);
 
-    user = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         user_id: user.user_id,
       },

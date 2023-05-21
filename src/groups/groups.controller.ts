@@ -1,37 +1,27 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Put,
-  Query,
-} from '@nestjs/common';
-import { LocationsService } from './locations.service';
-import { CreateLocationDto } from './dto/create-location.dto';
-import { UpdateLocationDto } from './dto/update-location.dto';
-import { FindLocationsDto } from './dto/find-locations.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { GroupsService } from './groups.service';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
+import { FindGroupsDto } from './dto/find-groups.dto';
 import { ApiAcceptedResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiOperation, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
 @ApiBearerAuth()
-@ApiTags('Locations')
-@Controller('locations')
-export class LocationsController {
-  constructor(private readonly locationsService: LocationsService) { }
+@ApiTags('Groups')
+@Controller('groups')
+export class GroupsController {
+  constructor(private readonly groupsService: GroupsService) { }
 
   @Post()
   @ApiCreatedResponse({ description: 'Created Succesfully' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Creation of a medical center',
+    summary: 'Group creation',
     description:
-      'Registration of medical centers and their specialities in the database from the DTO',
+      'Registration of groups and their students in the database from the DTO',
   })
-  create(@Body() createLocationDto: CreateLocationDto) {
-    return this.locationsService.create(createLocationDto);
+  create(@Body() createGroupDto: CreateGroupDto) {
+    return this.groupsService.create(createGroupDto);
   }
 
   @Get()
@@ -39,11 +29,11 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consultation of medical centers',
-    description: 'Consultation of registered medical centers',
+    summary: 'Group consultation',
+    description: 'Consultation of registered groups',
   })
-  findAll(@Body() findLocationDto: FindLocationsDto) {
-    return this.locationsService.findAll(findLocationDto);
+  findAll(@Body() findGroupsDto: FindGroupsDto) {
+    return this.groupsService.findAll(findGroupsDto);
   }
 
   @Get('/pagination')
@@ -51,15 +41,15 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consultation of medical centers with pagination',
-    description: 'Consultation of registered medical centers with pagination',
+    summary: 'Group consultation with pagination',
+    description: 'Consultation of registered groups with pagination',
   })
   findAllPagination(
-    @Body() findLocationDto: FindLocationsDto,
+    @Body() findGroupsDto: FindGroupsDto,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10'
   ) {
-    return this.locationsService.findAllPagination(findLocationDto, +page, +quantity);
+    return this.groupsService.findAllPagination(findGroupsDto, +page, +quantity);
   }
 
   @Get(':id')
@@ -67,11 +57,11 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consultation of a specific medical center',
-    description: 'Consultation of a specific medical center from its id',
+    summary: 'Specific group consultation',
+    description: 'Consultation of specific group',
   })
   findOne(@Param('id') id: string) {
-    return this.locationsService.findOne(+id);
+    return this.groupsService.findOne(+id);
   }
 
   @Put(':id')
@@ -79,14 +69,14 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Update of a specific medical center',
-    description: 'update of a specific medical center from its id',
+    summary: 'Specific group update',
+    description: 'Update of a specific group in the database',
   })
   update(
     @Param('id') id: string,
-    @Body() updateLocationDto: UpdateLocationDto,
+    @Body() updateGroupDto: UpdateGroupDto,
   ) {
-    return this.locationsService.update(+id, updateLocationDto);
+    return this.groupsService.update(+id, updateGroupDto);
   }
 
   @Delete(':id')
@@ -94,12 +84,12 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Elimination of a specific medical center',
+    summary: 'Deletion of a specific group',
     description:
-      'Elimination of a specific medical center in the database based on its id',
+      'Deletion of a specific group in the database based on its id',
   })
   remove(@Param('id') id: string) {
-    return this.locationsService.remove(+id);
+    return this.groupsService.remove(+id);
   }
 
   @Patch(':id')
@@ -107,11 +97,11 @@ export class LocationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Deactivation/Activation of a specific medical center',
+    summary: 'Deactivation/Activation of a specific group',
     description:
-      'Deactivation/Activation of a specific medical center in the database based on its id',
+      'Deactivation/Activation of a specific group in the database based on its id',
   })
   changeState(@Param('id') id: string) {
-    return this.locationsService.changeState(+id);
+    return this.groupsService.changeState(+id);
   }
 }

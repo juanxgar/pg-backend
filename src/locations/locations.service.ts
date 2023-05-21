@@ -41,7 +41,7 @@ export class LocationsService {
       data: rest,
     });
 
-    specialities.map((e) => {
+    specialities.forEach((e) => {
       e.location_id = location.location_id;
     });
 
@@ -98,16 +98,6 @@ export class LocationsService {
     quantity: number,
   ) {
     return await this.prisma.location.findMany({
-      select: {
-        location_id: true,
-        adress: true,
-        city: true,
-        complexity: true,
-        name: true,
-        state: true,
-        total_capacity: true,
-        location_speciality: true,
-      },
       where: {
         name: {
           contains: findLocationDto.name,
@@ -300,6 +290,7 @@ export class LocationsService {
 
     await this.prisma.location_speciality.deleteMany({
       where: {
+        location_id,
         location_speciality_id: {
           in: locationSpecilitiesIds,
         },
@@ -308,7 +299,7 @@ export class LocationsService {
 
     await this.prisma.location.delete({
       where: {
-        location_id: location.location_id,
+        location_id: location_id,
       },
     });
     return {
