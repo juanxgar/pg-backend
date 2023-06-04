@@ -7,7 +7,7 @@ import { CreateLocationSpecialityDto } from './dto/create-location-speciality.dt
 
 @Injectable()
 export class LocationsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createLocationDto: CreateLocationDto) {
     const locationAlreadyExists = await this.prisma.location.findUnique({
@@ -24,7 +24,8 @@ export class LocationsService {
 
     const { specialities, ...rest } = createLocationDto;
 
-    const hasDuplicates = (array: any) => new Set(array).size < array.length;
+    const hasDuplicates = (array: number[]) =>
+      new Set(array).size < array.length;
 
     const specialitiesId = specialities.map((e) => {
       return e.speciality_id;
@@ -153,6 +154,16 @@ export class LocationsService {
 
   async update(location_id: number, updateLocationDto: UpdateLocationDto) {
     const location = await this.prisma.location.findUnique({
+      select: {
+        location_id: true,
+        adress: true,
+        city: true,
+        complexity: true,
+        name: true,
+        state: true,
+        total_capacity: true,
+        location_speciality: true,
+      },
       where: {
         location_id,
       },
@@ -164,11 +175,7 @@ export class LocationsService {
       );
     }
 
-    const specialitiesLocation = await this.prisma.location_speciality.findMany({
-      where: {
-        location_id: location.location_id,
-      },
-    });
+    const specialitiesLocation = location.location_speciality;
 
     const specialitiesId = specialitiesLocation.map((e) => {
       return e.speciality_id;
@@ -176,7 +183,8 @@ export class LocationsService {
 
     const { specialities, ...rest } = updateLocationDto;
 
-    const hasDuplicates = (array: any) => new Set(array).size < array.length;
+    const hasDuplicates = (array: number[]) =>
+      new Set(array).size < array.length;
 
     const specialitiesIdDto = specialities.map((e) => {
       return e.speciality_id;
@@ -190,25 +198,30 @@ export class LocationsService {
     }
 
     //Specialities to create
-    const specialitiesToCreateFilter = specialities.filter((e) => !specialitiesId.includes(e.speciality_id));
+    const specialitiesToCreateFilter = specialities.filter(
+      (e) => !specialitiesId.includes(e.speciality_id),
+    );
     const specialitiesToCreate = specialitiesToCreateFilter.map((e) => {
       const spec = new CreateLocationSpecialityDto();
       spec.limit_capacity = e.limit_capacity;
       spec.location_id = location.location_id;
       spec.speciality_id = e.speciality_id;
       return spec;
-    })
+    });
     const specialitiesIdsToCreate = specialitiesToCreate.map((e) => {
-      return e.speciality_id
+      return e.speciality_id;
     });
 
     //Specialities ids to delete
-    const specialitiesIdsToDelete = specialitiesId.filter((e) => !specialitiesIdDto.includes(e));
+    const specialitiesIdsToDelete = specialitiesId.filter(
+      (e) => !specialitiesIdDto.includes(e),
+    );
 
     //Specialities to update
-    const specialitiesToUpdate = specialities.filter((e) =>
-      !specialitiesIdsToCreate.includes(e.speciality_id) &&
-      !specialitiesIdsToDelete.includes(e.speciality_id)
+    const specialitiesToUpdate = specialities.filter(
+      (e) =>
+        !specialitiesIdsToCreate.includes(e.speciality_id) &&
+        !specialitiesIdsToDelete.includes(e.speciality_id),
     );
 
     specialitiesToUpdate.forEach(async (e) => {
@@ -218,16 +231,16 @@ export class LocationsService {
         },
         data: {
           limit_capacity: e.limit_capacity,
-        }
-      })
-    })
+        },
+      });
+    });
 
     if (specialitiesIdsToDelete.length > 0) {
       await this.prisma.location_speciality.deleteMany({
         where: {
           location_id: location.location_id,
           speciality_id: {
-            in: specialitiesIdsToDelete
+            in: specialitiesIdsToDelete,
           },
         },
       });
@@ -245,10 +258,7 @@ export class LocationsService {
           name: updateLocationDto.name,
         },
       });
-      if (
-        locationByName &&
-        locationByName.name != location.name
-      ) {
+      if (locationByName && locationByName.name != location.name) {
         throw new HttpException(
           'Centro médico existente con nombre ingresado',
           HttpStatus.BAD_REQUEST,

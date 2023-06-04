@@ -6,7 +6,7 @@ import { FindGroupsDto } from './dto/find-groups.dto';
 
 @Injectable()
 export class GroupsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createGroupDto: CreateGroupDto) {
     const groupAlreadyExists = await this.prisma.group.findUnique({
@@ -42,12 +42,19 @@ export class GroupsService {
 
   async findAll(findGroupsDto: FindGroupsDto) {
     return this.prisma.group.findMany({
+      select: {
+        group_id: true,
+        name: true,
+        state: true,
+        professor_user: true,
+        group_detail: true,
+      },
       where: {
         name: {
           contains: findGroupsDto.name,
           mode: 'insensitive',
         },
-        professor_user_id: findGroupsDto.professor_user_id
+        professor_user_id: findGroupsDto.professor_user_id,
       },
       orderBy: {
         name: 'asc',
@@ -61,12 +68,19 @@ export class GroupsService {
     quantity: number,
   ) {
     return this.prisma.group.findMany({
+      select: {
+        group_id: true,
+        name: true,
+        state: true,
+        professor_user: true,
+        group_detail: true,
+      },
       where: {
         name: {
           contains: findGroupsDto.name,
           mode: 'insensitive',
         },
-        professor_user_id: findGroupsDto.professor_user_id
+        professor_user_id: findGroupsDto.professor_user_id,
       },
       orderBy: {
         name: 'asc',
@@ -83,17 +97,14 @@ export class GroupsService {
       },
     });
     if (!group) {
-      throw new HttpException(
-        'Grupo no encontrado',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Grupo no encontrado', HttpStatus.BAD_REQUEST);
     }
     return group;
   }
 
   async update(group_id: number, updateGroupDto: UpdateGroupDto) {
-
-    const hasDuplicates = (array: any) => new Set(array).size < array.length;
+    const hasDuplicates = (array: number[]) =>
+      new Set(array).size < array.length;
 
     const group = await this.prisma.group.findUnique({
       select: {
@@ -107,10 +118,7 @@ export class GroupsService {
       },
     });
     if (!group) {
-      throw new HttpException(
-        'Grupo no encontrado',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Grupo no encontrado', HttpStatus.BAD_REQUEST);
     }
 
     const { group_detail, ...rest } = group;
@@ -121,18 +129,17 @@ export class GroupsService {
 
     const userIdsDto = updateGroupDto.group_detail.map((e) => {
       return e.user_id;
-    })
+    });
 
     if (hasDuplicates(userIdsDto)) {
-      throw new HttpException(
-        'Hay usuarios repetidos',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Hay usuarios repetidos', HttpStatus.BAD_REQUEST);
     }
 
-    const usersToAdd = updateGroupDto.group_detail.filter((e) => !userIds.includes(e.user_id));
+    const usersToAdd = updateGroupDto.group_detail.filter(
+      (e) => !userIds.includes(e.user_id),
+    );
     usersToAdd.forEach((e) => {
-      e.group_id = group.group_id
+      e.group_id = group.group_id;
     });
 
     const usersToDelete = userIds.filter((e) => !userIdsDto.includes(e));
@@ -143,9 +150,9 @@ export class GroupsService {
           group_id: group.group_id,
           user_id: {
             in: usersToDelete,
-          }
-        }
-      })
+          },
+        },
+      });
     }
 
     if (usersToAdd.length > 0) {
@@ -158,10 +165,9 @@ export class GroupsService {
       const groupByName = await this.prisma.group.findUnique({
         where: {
           name: rest.name,
-        }
+        },
       });
-      if (groupByName &&
-        groupByName.name != group.name) {
+      if (groupByName && groupByName.name != group.name) {
         throw new HttpException(
           'Grupo existente con nombre ingresado',
           HttpStatus.BAD_REQUEST,
@@ -188,14 +194,11 @@ export class GroupsService {
         group_detail: true,
       },
       where: {
-        group_id
+        group_id,
       },
     });
     if (!group) {
-      throw new HttpException(
-        'Grupo no encontrado',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Grupo no encontrado', HttpStatus.BAD_REQUEST);
     }
 
     const groupDetailIds = group.group_detail.map((e) => {
@@ -214,7 +217,7 @@ export class GroupsService {
     await this.prisma.group.delete({
       where: {
         group_id,
-      }
+      },
     });
 
     return {

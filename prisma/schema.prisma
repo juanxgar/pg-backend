@@ -97,6 +97,7 @@ model rotation {
   group               group                 @relation(fields: [group_id], references: [group_id])
   location            location              @relation(fields: [location_id], references: [location_id])
   rotation_speciality rotation_speciality[]
+  rotation_date       rotation_date[]
 }
 
 model rotation_speciality {
@@ -104,6 +105,8 @@ model rotation_speciality {
   rotation_id            Int
   speciality_id          Int
   professor_user_id      Int
+  available_capacity     Int
+  number_weeks           Int
   rotation               rotation        @relation(fields: [rotation_id], references: [rotation_id])
   speciality             speciality      @relation(fields: [speciality_id], references: [speciality_id])
   professor              user            @relation(fields: [professor_user_id], references: [user_id])
@@ -114,10 +117,12 @@ model rotation_speciality {
 model rotation_date {
   rotation_date_id       Int                 @id @default(autoincrement())
   student_user_id        Int
+  rotation_id            Int
   rotation_speciality_id Int
   start_date             DateTime            @db.Date
   finish_date            DateTime            @db.Date
   student                user                @relation(fields: [student_user_id], references: [user_id])
+  rotation               rotation            @relation(fields: [rotation_id], references: [rotation_id])
   rotation_speciality    rotation_speciality @relation(fields: [rotation_speciality_id], references: [rotation_speciality_id])
   evalution              evalution[]
 }
