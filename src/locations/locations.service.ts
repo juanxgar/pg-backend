@@ -224,7 +224,7 @@ export class LocationsService {
         !specialitiesIdsToDelete.includes(e.speciality_id),
     );
 
-    specialitiesToUpdate.forEach(async (e) => {
+    for (const e of specialitiesToUpdate) {
       await this.prisma.location_speciality.update({
         where: {
           location_speciality_id: e.location_speciality_id,
@@ -233,7 +233,7 @@ export class LocationsService {
           limit_capacity: e.limit_capacity,
         },
       });
-    });
+    }
 
     if (specialitiesIdsToDelete.length > 0) {
       await this.prisma.location_speciality.deleteMany({

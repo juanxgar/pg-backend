@@ -8,9 +8,10 @@ import { LocationsModule } from './locations/locations.module';
 import { GroupsModule } from './groups/groups.module';
 import { RotationsModule } from './rotations/rotations.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
+import { QuestionsModule } from './questions/questions.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, MailModule, SpecialitiesModule, LocationsModule, GroupsModule, RotationsModule, EvaluationsModule],
+  imports: [UsersModule, AuthModule, MailModule, SpecialitiesModule, LocationsModule, GroupsModule, RotationsModule, EvaluationsModule, QuestionsModule],
   providers: [AppService],
 })
 export class AppModule { }
