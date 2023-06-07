@@ -17,7 +17,7 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Public()
   @Post()
@@ -33,28 +33,26 @@ export class AuthController {
   }
 
   @Public()
-  @Patch('/reset_password')
+  @Patch('/reset-password')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Sending of password reset email',
-    description:
-      'sending of password reset email to recover access',
+    description: 'sending of password reset email to recover access',
   })
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Public()
-  @Patch('new_password')
+  @Patch('new-password')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Password reset',
-    description:
-      'Creation of new user password',
+    description: 'Creation of new user password',
   })
   newPassword(@Body() newPasswordDto: NewPasswordDto) {
     return this.authService.newPassword(newPasswordDto);

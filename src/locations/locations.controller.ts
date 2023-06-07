@@ -22,7 +22,7 @@ export class LocationsController {
   constructor(private readonly locationsService: LocationsService) { }
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created Succesfully' })
+  @ApiCreatedResponse({ description: 'Created Successfully' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({

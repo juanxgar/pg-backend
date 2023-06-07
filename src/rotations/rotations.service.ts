@@ -558,4 +558,17 @@ export class RotationsService {
       rotationSpeciality.available_capacity - usedCapacity;
     return availableCapacity;
   }
+
+  async getRotationsOfGroup(group_id: number) {
+    return this.prisma.rotation.findMany({
+      select: {
+        rotation_id: true,
+        start_date: true,
+        finish_date: true,
+      },
+      where: {
+        group_id,
+      },
+    });
+  }
 }

@@ -1,4 +1,13 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateEvaluationDto } from './create-evaluation.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { UpdateStudentGradeDto } from './update-student-grade.dto';
 
-export class UpdateEvaluationDto extends PartialType(CreateEvaluationDto) {}
+export class UpdateEvaluationDto {
+  @ApiProperty()
+  professor_comments: string;
+
+  @ApiProperty()
+  student_comments: string;
+
+  @ApiProperty()
+  student_grades: Array<UpdateStudentGradeDto>;
+}

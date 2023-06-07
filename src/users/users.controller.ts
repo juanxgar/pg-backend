@@ -31,7 +31,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created Succesfully' })
+  @ApiCreatedResponse({ description: 'Created Successfully' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({

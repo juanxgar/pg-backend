@@ -232,10 +232,7 @@ export class GroupsService {
       },
     });
     if (!group) {
-      throw new HttpException(
-        'Especialidad no encontrada',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Grupo no encontrado', HttpStatus.BAD_REQUEST);
     }
 
     group = await this.prisma.group.update({
@@ -252,6 +249,61 @@ export class GroupsService {
         'Grupo ' +
         (group.state ? 'habilitado' : 'inhabilitado') +
         ' satisfactoriamente',
+    };
+  }
+
+  //Students that finished the rotation in the group
+  async findStudentsFinishRotation(
+    group_id: number,
+    rotation_id: number,
+    speciality_id?: number,
+  ) {
+    const group = await this.prisma.group.findFirst({
+      select: {
+        group_id: true,
+        name: true,
+        rotation: {
+          select: {
+            rotation_id: true,
+            rotation_date: {
+              select: {
+                rotation_date_id: true,
+                rotation_speciality_id: true,
+                student: true,
+              },
+              where: {
+                finish_date: {
+                  lte: new Date(),
+                },
+                rotation_speciality: {
+                  speciality_id: speciality_id ? speciality_id : undefined,
+                },
+              },
+            },
+          },
+          where: {
+            rotation_id,
+          },
+        },
+      },
+      where: {
+        group_id,
+      },
+    });
+    if (!group) {
+      throw new HttpException('Grupo no encontrado', HttpStatus.BAD_REQUEST);
+    }
+
+    return {
+      group_id: group.group_id,
+      name: group.name,
+      students: group.rotation[0].rotation_date.map((e) => {
+        return {
+          rotation_speciality_id: e.rotation_speciality_id,
+          rotation_date_id: e.rotation_date_id,
+          ...e.student,
+        };
+      }),
     };
   }
 }

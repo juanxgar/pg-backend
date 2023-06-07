@@ -1,18 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { FindGroupsDto } from './dto/find-groups.dto';
-import { ApiAcceptedResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiOperation, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import {
+  ApiAcceptedResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @ApiTags('Groups')
 @Controller('groups')
 export class GroupsController {
-  constructor(private readonly groupsService: GroupsService) { }
+  constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'Created Succesfully' })
+  @ApiCreatedResponse({ description: 'Created Successfully' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
@@ -47,12 +65,16 @@ export class GroupsController {
   findAllPagination(
     @Body() findGroupsDto: FindGroupsDto,
     @Query('page') page = '0',
-    @Query('quantity') quantity = '10'
+    @Query('quantity') quantity = '10',
   ) {
-    return this.groupsService.findAllPagination(findGroupsDto, +page, +quantity);
+    return this.groupsService.findAllPagination(
+      findGroupsDto,
+      +page,
+      +quantity,
+    );
   }
 
-  @Get(':id')
+  @Get('/unique/:id')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
@@ -72,10 +94,7 @@ export class GroupsController {
     summary: 'Specific group update',
     description: 'Update of a specific group in the database',
   })
-  update(
-    @Param('id') id: string,
-    @Body() updateGroupDto: UpdateGroupDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupsService.update(+id, updateGroupDto);
   }
 
@@ -85,8 +104,7 @@ export class GroupsController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Deletion of a specific group',
-    description:
-      'Deletion of a specific group in the database based on its id',
+    description: 'Deletion of a specific group in the database based on its id',
   })
   remove(@Param('id') id: string) {
     return this.groupsService.remove(+id);
@@ -103,5 +121,25 @@ export class GroupsController {
   })
   changeState(@Param('id') id: string) {
     return this.groupsService.changeState(+id);
+  }
+
+  @Get('/students-evaluation')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consultation of students',
+    description: 'Consultation of students that finish rotation',
+  })
+  findStudentsFinishRotation(
+    @Query('id') id: string,
+    @Query('rotation_id') rotation_id: string,
+    @Query('speciality_id') speciality_id?: string,
+  ) {
+    return this.groupsService.findStudentsFinishRotation(
+      +id,
+      +rotation_id,
+      +speciality_id,
+    );
   }
 }
