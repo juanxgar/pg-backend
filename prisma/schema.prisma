@@ -10,14 +10,154 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             Int     @id @default(autoincrement())
-  name           String
-  lastname       String
-  identification Int
-  role           String
-  code           String
-  email          String  @unique
-  password       String
-  state          Boolean @default(true)
+model user {
+  user_id              Int                    @id @default(autoincrement())
+  name                 String
+  lastname             String
+  identification       Int                    @unique
+  role                 String
+  code                 String                 @unique
+  email                String                 @unique
+  password             String
+  state                Boolean                @default(true)
+  reset_password_token String?
+  professor_speciality professor_speciality[]
+  group                group[]
+  group_detail         group_detail[]
+  rotation_speciality  rotation_speciality[]
+  rotation_date        rotation_date[]
+}
+
+model speciality {
+  speciality_id        Int                    @id @default(autoincrement())
+  description          String                 @unique
+  state                Boolean                @default(true)
+  professor_speciality professor_speciality[]
+  location_speciality  location_speciality[]
+  rotation_speciality  rotation_speciality[]
+}
+
+model professor_speciality {
+  professor_especiality_id Int        @id @default(autoincrement())
+  user_id                  Int
+  speciality_id            Int
+  state                    Boolean    @default(true)
+  user                     user       @relation(fields: [user_id], references: [user_id])
+  speciality               speciality @relation(fields: [speciality_id], references: [speciality_id])
+}
+
+model location {
+  location_id         Int                   @id @default(autoincrement())
+  name                String                @unique
+  adress              String
+  city                String
+  total_capacity      Int
+  complexity          String
+  state               Boolean               @default(true)
+  location_speciality location_speciality[]
+  rotation            rotation[]
+}
+
+model location_speciality {
+  location_speciality_id Int        @id @default(autoincrement())
+  location_id            Int
+  speciality_id          Int
+  limit_capacity         Int
+  state                  Boolean    @default(true)
+  location               location   @relation(fields: [location_id], references: [location_id])
+  speciality             speciality @relation(fields: [speciality_id], references: [speciality_id])
+}
+
+model group {
+  group_id          Int            @id @default(autoincrement())
+  professor_user_id Int
+  name              String         @unique
+  state             Boolean        @default(true)
+  professor_user    user           @relation(fields: [professor_user_id], references: [user_id])
+  group_detail      group_detail[]
+  rotation          rotation[]
+}
+
+model group_detail {
+  group_detail_id Int   @id @default(autoincrement())
+  group_id        Int
+  user_id         Int
+  group           group @relation(fields: [group_id], references: [group_id])
+  user            user  @relation(fields: [user_id], references: [user_id])
+}
+
+model rotation {
+  rotation_id         Int                   @id @default(autoincrement())
+  group_id            Int
+  location_id         Int
+  start_date          DateTime              @db.Date
+  finish_date         DateTime              @db.Date
+  semester            Int
+  state               Boolean               @default(true)
+  group               group                 @relation(fields: [group_id], references: [group_id])
+  location            location              @relation(fields: [location_id], references: [location_id])
+  rotation_speciality rotation_speciality[]
+  rotation_date       rotation_date[]
+}
+
+model rotation_speciality {
+  rotation_speciality_id Int             @id @default(autoincrement())
+  rotation_id            Int
+  speciality_id          Int
+  professor_user_id      Int
+  available_capacity     Int
+  number_weeks           Int
+  rotation               rotation        @relation(fields: [rotation_id], references: [rotation_id])
+  speciality             speciality      @relation(fields: [speciality_id], references: [speciality_id])
+  professor              user            @relation(fields: [professor_user_id], references: [user_id])
+  rotation_date          rotation_date[]
+  evalution              evalution[]
+}
+
+model rotation_date {
+  rotation_date_id       Int                 @id @default(autoincrement())
+  student_user_id        Int
+  rotation_id            Int
+  rotation_speciality_id Int
+  start_date             DateTime            @db.Date
+  finish_date            DateTime            @db.Date
+  student                user                @relation(fields: [student_user_id], references: [user_id])
+  rotation               rotation            @relation(fields: [rotation_id], references: [rotation_id])
+  rotation_speciality    rotation_speciality @relation(fields: [rotation_speciality_id], references: [rotation_speciality_id])
+  evalution              evalution[]
+}
+
+model description_exam {
+  description_exam_id Int                   @id @default(autoincrement())
+  description         String
+  subdescription_exam subdescription_exam[]
+}
+
+model subdescription_exam {
+  subdescription_exam_id Int              @id @default(autoincrement())
+  description_exam_id    Int
+  subdescription         String
+  description            description_exam @relation(fields: [description_exam_id], references: [description_exam_id])
+  student_grade          student_grade[]
+}
+
+model evalution {
+  evaluation_id          Int                 @id @default(autoincrement())
+  rotation_speciality_id Int
+  rotation_date_id       Int
+  grade_value            Float?
+  professor_comments     String?
+  student_comments       String?
+  rotation_speciality    rotation_speciality @relation(fields: [rotation_speciality_id], references: [rotation_speciality_id])
+  rotation_date          rotation_date       @relation(fields: [rotation_date_id], references: [rotation_date_id])
+  student_grade          student_grade[]
+}
+
+model student_grade {
+  student_grade_id       Int                 @id @default(autoincrement())
+  evaluation_id          Int
+  subdescription_exam_id Int
+  grade_value            Float?
+  evaluation             evalution           @relation(fields: [evaluation_id], references: [evaluation_id])
+  subdescription         subdescription_exam @relation(fields: [subdescription_exam_id], references: [subdescription_exam_id])
 }
