@@ -2,11 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSpecialityDto } from './dto/create-speciality.dto';
 import { UpdateSpecialityDto } from './dto/update-speciality.dto';
 import { PrismaService } from 'src/prisma.service';
-import { FindSpecialitiesDto } from './dto/find-specilities.dto';
 
 @Injectable()
 export class SpecialitiesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(createSpecialityDto: CreateSpecialityDto) {
     const specialityExists = await this.prisma.speciality.findUnique({
       where: {
@@ -30,14 +29,14 @@ export class SpecialitiesService {
     };
   }
 
-  async findAll(findSpecialitiesDto: FindSpecialitiesDto) {
+  async findAll(description: string, state: boolean) {
     return await this.prisma.speciality.findMany({
       where: {
         description: {
-          contains: findSpecialitiesDto.description,
+          contains: description,
           mode: 'insensitive',
         },
-        state: findSpecialitiesDto.state,
+        state: state,
       },
       orderBy: {
         description: 'asc',
@@ -46,17 +45,18 @@ export class SpecialitiesService {
   }
 
   async findAllPagination(
-    findSpecialitiesDto: FindSpecialitiesDto,
+    description: string,
+    state: boolean,
     page: number,
     quantity: number,
   ) {
     return await this.prisma.speciality.findMany({
       where: {
         description: {
-          contains: findSpecialitiesDto.description,
+          contains: description,
           mode: 'insensitive',
         },
-        state: findSpecialitiesDto.state,
+        state: state,
       },
       orderBy: {
         description: 'asc',
@@ -127,7 +127,7 @@ export class SpecialitiesService {
   }
 
   async remove(speciality_id: number) {
-    const speciality = this.prisma.speciality.findUnique({
+    const speciality = await this.prisma.speciality.findUnique({
       where: {
         speciality_id,
       },

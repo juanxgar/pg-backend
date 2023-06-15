@@ -2,11 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRotationDto } from './dto/create-rotation.dto';
 import { UpdateRotationDto } from './dto/update-rotation.dto';
 import { PrismaService } from 'src/prisma.service';
-import { FindRotationsDto } from './dto/find-rotations.dto';
 import { CreateRotationDatesDto } from './dto/create-rotation-dates.dto';
 import { RotationDates } from 'src/types/types';
 import * as moment from 'moment';
-import { FindAvailableCapacityDto } from './dto/find-available-capacity.dto';
 
 @Injectable()
 export class RotationsService {
@@ -158,7 +156,13 @@ export class RotationsService {
     };
   }
 
-  async findAll(findRotationsDto: FindRotationsDto) {
+  async findAll(
+    group_id: number,
+    location_id: number,
+    start_date: string,
+    finish_date: string,
+    semester: number,
+  ) {
     return await this.prisma.rotation.findMany({
       select: {
         rotation_id: true,
@@ -171,12 +175,11 @@ export class RotationsService {
         state: true,
       },
       where: {
-        group_id: findRotationsDto.group_id,
-        location_id: findRotationsDto.location_id,
-        start_date: findRotationsDto.start_date,
-        finish_date: findRotationsDto.finish_date,
-        semester: findRotationsDto.semester,
-        state: findRotationsDto.state,
+        group_id: group_id,
+        location_id: location_id,
+        start_date: start_date,
+        finish_date: finish_date,
+        semester: semester,
       },
       orderBy: {
         start_date: 'asc',
@@ -185,7 +188,11 @@ export class RotationsService {
   }
 
   async findAllPagination(
-    findRotationsDto: FindRotationsDto,
+    group_id: number,
+    location_id: number,
+    start_date: string,
+    finish_date: string,
+    semester: number,
     page: number,
     quantity: number,
   ) {
@@ -201,12 +208,11 @@ export class RotationsService {
         state: true,
       },
       where: {
-        group_id: findRotationsDto.group_id,
-        location_id: findRotationsDto.location_id,
-        start_date: findRotationsDto.start_date,
-        finish_date: findRotationsDto.finish_date,
-        semester: findRotationsDto.semester,
-        state: findRotationsDto.state,
+        group_id: group_id,
+        location_id: location_id,
+        start_date: start_date,
+        finish_date: finish_date,
+        semester: semester,
       },
       orderBy: {
         start_date: 'asc',
@@ -527,13 +533,15 @@ export class RotationsService {
 
   //Used for dates of rotation. To know if there are specialities availables in selected dates
   async findAvailableCapacity(
-    findAvailableCapacityDto: FindAvailableCapacityDto,
+    rotation_speciality_id: number,
+    start_date: number,
+    finish_date: number,
   ) {
     const usedCapacity = await this.prisma.rotation_date.count({
       where: {
-        rotation_speciality_id: findAvailableCapacityDto.rotation_speciality_id,
-        start_date: new Date(findAvailableCapacityDto.start_date),
-        finish_date: new Date(findAvailableCapacityDto.finish_date),
+        rotation_speciality_id,
+        start_date: new Date(start_date),
+        finish_date: new Date(finish_date),
       },
     });
 
@@ -543,8 +551,7 @@ export class RotationsService {
           available_capacity: true,
         },
         where: {
-          rotation_speciality_id:
-            findAvailableCapacityDto.rotation_speciality_id,
+          rotation_speciality_id,
         },
       },
     );

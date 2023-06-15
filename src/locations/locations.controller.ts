@@ -12,14 +12,21 @@ import {
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
-import { FindLocationsDto } from './dto/find-locations.dto';
-import { ApiAcceptedResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiOperation, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import {
+  ApiAcceptedResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @ApiTags('Locations')
 @Controller('locations')
 export class LocationsController {
-  constructor(private readonly locationsService: LocationsService) { }
+  constructor(private readonly locationsService: LocationsService) {}
 
   @Post()
   @ApiCreatedResponse({ description: 'Created Successfully' })
@@ -42,8 +49,14 @@ export class LocationsController {
     summary: 'Consultation of medical centers',
     description: 'Consultation of registered medical centers',
   })
-  findAll(@Body() findLocationDto: FindLocationsDto) {
-    return this.locationsService.findAll(findLocationDto);
+  findAll(
+    @Query('name') name: string,
+    @Query('adress') adress: string,
+    @Query('city') city: string,
+    @Query('complexity') complexity: string,
+    @Query('state') state: boolean,
+  ) {
+    return this.locationsService.findAll(name, adress, city, complexity, state);
   }
 
   @Get('/pagination')
@@ -55,11 +68,23 @@ export class LocationsController {
     description: 'Consultation of registered medical centers with pagination',
   })
   findAllPagination(
-    @Body() findLocationDto: FindLocationsDto,
+    @Query('name') name: string,
+    @Query('adress') adress: string,
+    @Query('city') city: string,
+    @Query('complexity') complexity: string,
+    @Query('state') state: boolean,
     @Query('page') page = '0',
-    @Query('quantity') quantity = '10'
+    @Query('quantity') quantity = '10',
   ) {
-    return this.locationsService.findAllPagination(findLocationDto, +page, +quantity);
+    return this.locationsService.findAllPagination(
+      name,
+      adress,
+      city,
+      complexity,
+      state,
+      +page,
+      +quantity,
+    );
   }
 
   @Get(':id')

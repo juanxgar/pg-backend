@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
@@ -21,9 +20,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { FindRotationsDto } from './dto/find-rotations.dto';
 import { CreateRotationDatesDto } from './dto/create-rotation-dates.dto';
-import { FindAvailableCapacityDto } from './dto/find-available-capacity.dto';
 
 @ApiBearerAuth()
 @ApiTags('Rotations')
@@ -63,8 +60,20 @@ export class RotationsController {
     summary: 'Rotation consultation',
     description: 'Consultation of registered rotations',
   })
-  findAll(@Body() findRotationsDto: FindRotationsDto) {
-    return this.rotationsService.findAll(findRotationsDto);
+  findAll(
+    @Query('group_id') group_id: string,
+    @Query('location_id') location_id: string,
+    @Query('start_date') start_date: string,
+    @Query('finish_date') finish_date: string,
+    @Query('semester') semester: string,
+  ) {
+    return this.rotationsService.findAll(
+      +group_id,
+      +location_id,
+      start_date,
+      finish_date,
+      +semester,
+    );
   }
 
   @Get('/pagination')
@@ -76,12 +85,20 @@ export class RotationsController {
     description: 'Consultation of registered rotations with pagination',
   })
   findAllPagination(
-    @Body() findRotationsDto: FindRotationsDto,
+    @Query('group_id') group_id: string,
+    @Query('location_id') location_id: string,
+    @Query('start_date') start_date: string,
+    @Query('finish_date') finish_date: string,
+    @Query('semester') semester: string,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10',
   ) {
     return this.rotationsService.findAllPagination(
-      findRotationsDto,
+      +group_id,
+      +location_id,
+      start_date,
+      finish_date,
+      +semester,
       +page,
       +quantity,
     );
@@ -158,10 +175,16 @@ export class RotationsController {
     description:
       'Consultation of avaliable capacity of a speciality in a rotation between specified dates',
   })
-  @Post('/available-capacity')
+  @Get('/available-capacity')
   findAvailableCapacity(
-    @Body() findAvailableCapacity: FindAvailableCapacityDto,
+    @Query('rotation_speciality_id') rotation_speciality_id: number,
+    @Query('start_date') start_date: number,
+    @Query('finish_date') finish_date: number,
   ) {
-    return this.rotationsService.findAvailableCapacity(findAvailableCapacity);
+    return this.rotationsService.findAvailableCapacity(
+      rotation_speciality_id,
+      start_date,
+      finish_date,
+    );
   }
 }
