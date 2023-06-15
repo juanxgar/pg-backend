@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { PrismaService } from 'src/prisma.service';
-import { FindGroupsDto } from './dto/find-groups.dto';
 
 @Injectable()
 export class GroupsService {
@@ -40,7 +39,7 @@ export class GroupsService {
     };
   }
 
-  async findAll(findGroupsDto: FindGroupsDto) {
+  async findAll(name: string, professor_user_id: number) {
     return this.prisma.group.findMany({
       select: {
         group_id: true,
@@ -51,10 +50,10 @@ export class GroupsService {
       },
       where: {
         name: {
-          contains: findGroupsDto.name,
+          contains: name,
           mode: 'insensitive',
         },
-        professor_user_id: findGroupsDto.professor_user_id,
+        professor_user_id: professor_user_id ? professor_user_id : undefined,
       },
       orderBy: {
         name: 'asc',
@@ -63,7 +62,8 @@ export class GroupsService {
   }
 
   async findAllPagination(
-    findGroupsDto: FindGroupsDto,
+    name: string,
+    professor_user_id: number,
     page: number,
     quantity: number,
   ) {
@@ -77,10 +77,10 @@ export class GroupsService {
       },
       where: {
         name: {
-          contains: findGroupsDto.name,
+          contains: name,
           mode: 'insensitive',
         },
-        professor_user_id: findGroupsDto.professor_user_id,
+        professor_user_id: professor_user_id,
       },
       orderBy: {
         name: 'asc',

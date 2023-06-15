@@ -21,13 +21,12 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { FindSpecialitiesDto } from './dto/find-specilities.dto';
 
 @ApiBearerAuth()
 @ApiTags('Specialities')
 @Controller('specialities')
 export class SpecialitiesController {
-  constructor(private readonly specialitiesService: SpecialitiesService) { }
+  constructor(private readonly specialitiesService: SpecialitiesService) {}
 
   @Post()
   @ApiCreatedResponse({ description: 'Created Successfully' })
@@ -35,8 +34,7 @@ export class SpecialitiesController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Creation of speciality',
-    description:
-      'Registration of a speciality based on its DTO',
+    description: 'Registration of a speciality based on its DTO',
   })
   create(@Body() createSpecialityDto: CreateSpecialityDto) {
     return this.specialitiesService.create(createSpecialityDto);
@@ -50,8 +48,11 @@ export class SpecialitiesController {
     summary: 'Consultation of specialities',
     description: 'Consultation of registered specialities',
   })
-  findAll(@Body() findSpecialitiesDto: FindSpecialitiesDto) {
-    return this.specialitiesService.findAll(findSpecialitiesDto);
+  findAll(
+    @Query('description') description: string,
+    @Query('state') state: boolean,
+  ) {
+    return this.specialitiesService.findAll(description, state);
   }
 
   @Get('/pagination')
@@ -63,12 +64,14 @@ export class SpecialitiesController {
     description: 'Consultation of registered specialities with pagination',
   })
   findAllPagination(
-    @Body() findSpecialitiesDto: FindSpecialitiesDto,
+    @Query('description') description: string,
+    @Query('state') state: boolean,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10',
   ) {
     return this.specialitiesService.findAllPagination(
-      findSpecialitiesDto,
+      description,
+      state,
       +page,
       +quantity,
     );
@@ -92,8 +95,7 @@ export class SpecialitiesController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Update of a specific speciality',
-    description:
-      'Upddate of a specific speciality based on its DTO and id',
+    description: 'Upddate of a specific speciality based on its DTO and id',
   })
   update(
     @Param('id') id: string,
@@ -108,8 +110,7 @@ export class SpecialitiesController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Elimination of a specific specility',
-    description:
-      'Elimintation of a specific speciality based on its id',
+    description: 'Elimintation of a specific speciality based on its id',
   })
   remove(@Param('id') id: string) {
     return this.specialitiesService.remove(+id);

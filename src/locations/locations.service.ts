@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { PrismaService } from 'src/prisma.service';
-import { FindLocationsDto } from './dto/find-locations.dto';
 import { CreateLocationSpecialityDto } from './dto/create-location-speciality.dto';
 
 @Injectable()
@@ -55,7 +54,13 @@ export class LocationsService {
     };
   }
 
-  async findAll(findLocationDto: FindLocationsDto) {
+  async findAll(
+    name: string,
+    adress: string,
+    city: string,
+    complexity: string,
+    state: boolean,
+  ) {
     return await this.prisma.location.findMany({
       select: {
         location_id: true,
@@ -69,23 +74,22 @@ export class LocationsService {
       },
       where: {
         name: {
-          contains: findLocationDto.name,
+          contains: name,
           mode: 'insensitive',
         },
         adress: {
-          contains: findLocationDto.adress,
+          contains: adress,
           mode: 'insensitive',
         },
         city: {
-          contains: findLocationDto.city,
+          contains: city,
           mode: 'insensitive',
         },
         complexity: {
-          contains: findLocationDto.complexity,
+          contains: complexity,
           mode: 'insensitive',
         },
-        total_capacity: findLocationDto.total_capacity,
-        state: findLocationDto.state,
+        state: state,
       },
       orderBy: {
         name: 'asc',
@@ -94,30 +98,33 @@ export class LocationsService {
   }
 
   async findAllPagination(
-    findLocationDto: FindLocationsDto,
+    name: string,
+    adress: string,
+    city: string,
+    complexity: string,
+    state: boolean,
     page: number,
     quantity: number,
   ) {
     return await this.prisma.location.findMany({
       where: {
         name: {
-          contains: findLocationDto.name,
+          contains: name,
           mode: 'insensitive',
         },
         adress: {
-          contains: findLocationDto.adress,
+          contains: adress,
           mode: 'insensitive',
         },
         city: {
-          contains: findLocationDto.city,
+          contains: city,
           mode: 'insensitive',
         },
         complexity: {
-          contains: findLocationDto.complexity,
+          contains: complexity,
           mode: 'insensitive',
         },
-        total_capacity: findLocationDto.total_capacity,
-        state: findLocationDto.state,
+        state: state,
       },
       orderBy: {
         name: 'asc',

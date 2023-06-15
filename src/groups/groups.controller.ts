@@ -12,7 +12,6 @@ import {
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { FindGroupsDto } from './dto/find-groups.dto';
 import {
   ApiAcceptedResponse,
   ApiBearerAuth,
@@ -50,8 +49,11 @@ export class GroupsController {
     summary: 'Group consultation',
     description: 'Consultation of registered groups',
   })
-  findAll(@Body() findGroupsDto: FindGroupsDto) {
-    return this.groupsService.findAll(findGroupsDto);
+  findAll(
+    @Query('name') name?: string,
+    @Query('professor_user_id') professor_user_id?: string,
+  ) {
+    return this.groupsService.findAll(name, +professor_user_id);
   }
 
   @Get('/pagination')
@@ -63,12 +65,14 @@ export class GroupsController {
     description: 'Consultation of registered groups with pagination',
   })
   findAllPagination(
-    @Body() findGroupsDto: FindGroupsDto,
+    @Query('name') name?: string,
+    @Query('professor_user_id') professor_user_id?: string,
     @Query('page') page = '0',
     @Query('quantity') quantity = '10',
   ) {
     return this.groupsService.findAllPagination(
-      findGroupsDto,
+      name,
+      +professor_user_id,
       +page,
       +quantity,
     );
