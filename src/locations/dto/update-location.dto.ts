@@ -20,7 +20,9 @@ export class UpdateLocationDto {
 
   @ApiProperty({
     type: Array<UpdateLocationSpecialityDto>,
-    default: [{ speciality_id: 0, limit_capacity: 0 }],
+    default: [
+      { location_speciality_id: 0, speciality_id: 0, limit_capacity: 0 },
+    ],
   })
   specialities: Array<UpdateLocationSpecialityDto>;
 }
