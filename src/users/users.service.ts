@@ -407,6 +407,32 @@ export class UsersService {
       }
     }
 
+    if (
+      updateUserDto.role &&
+      updateUserDto.role === 'Profesor' &&
+      updateUserDto.speciality_id
+    ) {
+      const professorSpeciality =
+        await this.prisma.professor_speciality.findFirst({
+          select: {
+            professor_especiality_id: true,
+          },
+          where: {
+            user_id,
+            speciality_id: updateUserDto.speciality_id,
+          },
+        });
+      await this.prisma.professor_speciality.update({
+        where: {
+          professor_especiality_id:
+            professorSpeciality.professor_especiality_id,
+        },
+        data: {
+          speciality_id: updateUserDto.speciality_id,
+        },
+      });
+    }
+
     let hashPassword = null;
     if (updateUserDto.password) {
       hashPassword = await bcrypt.hash(updateUserDto.password, 10);

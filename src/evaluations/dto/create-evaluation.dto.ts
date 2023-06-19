@@ -11,6 +11,12 @@ export class CreateEvaluationDto {
   @ApiProperty()
   professor_comments: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Array<CreateStudentGradeDto>,
+    default: {
+      subdescription_exam_id: 0,
+      grade_value: 0.0,
+    },
+  })
   student_grades: Array<CreateStudentGradeDto>;
 }
