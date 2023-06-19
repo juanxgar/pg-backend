@@ -8,6 +8,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { DescriptionExamItem } from 'src/types/entitiesTypes';
 
 @ApiBearerAuth()
 @ApiTags('Questions')
@@ -23,7 +24,7 @@ export class QuestionsController {
     summary: 'Questions consultation',
     description: 'Consultation of registered questions',
   })
-  findAll() {
+  findAll(): Promise<Array<DescriptionExamItem>> {
     return this.questionsService.findAll();
   }
 }

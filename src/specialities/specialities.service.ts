@@ -2,11 +2,17 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSpecialityDto } from './dto/create-speciality.dto';
 import { UpdateSpecialityDto } from './dto/update-speciality.dto';
 import { PrismaService } from 'src/prisma.service';
+import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
+import { SpecialityItem } from 'src/types/entitiesTypes';
+import { PaginateFunction } from 'src/types/types';
+import { paginator } from 'src/util/Paginator';
 
 @Injectable()
 export class SpecialitiesService {
   constructor(private prisma: PrismaService) {}
-  async create(createSpecialityDto: CreateSpecialityDto) {
+  async create(
+    createSpecialityDto: CreateSpecialityDto,
+  ): Promise<MessageResult> {
     const specialityExists = await this.prisma.speciality.findUnique({
       where: {
         description: createSpecialityDto.description,
@@ -29,7 +35,10 @@ export class SpecialitiesService {
     };
   }
 
-  async findAll(description: string, state: boolean) {
+  async findAll(
+    state: boolean,
+    description?: string,
+  ): Promise<Array<SpecialityItem>> {
     return await this.prisma.speciality.findMany({
       where: {
         description: {
@@ -45,28 +54,34 @@ export class SpecialitiesService {
   }
 
   async findAllPagination(
-    description: string,
     state: boolean,
     page: number,
-    quantity: number,
-  ) {
-    return await this.prisma.speciality.findMany({
-      where: {
-        description: {
-          contains: description,
-          mode: 'insensitive',
+    limit: number,
+    description?: string,
+  ): Promise<PaginatedResult<SpecialityItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.speciality,
+      {
+        page,
+        perPage: limit,
+      },
+      {
+        where: {
+          description: {
+            contains: description,
+            mode: 'insensitive',
+          },
+          state: state,
         },
-        state: state,
+        orderBy: {
+          description: 'asc',
+        },
       },
-      orderBy: {
-        description: 'asc',
-      },
-      skip: page * quantity,
-      take: quantity,
-    });
+    );
   }
 
-  async findOne(speciality_id: number) {
+  async findOne(speciality_id: number): Promise<SpecialityItem> {
     const speciality = await this.prisma.speciality.findUnique({
       where: {
         speciality_id,
@@ -84,7 +99,7 @@ export class SpecialitiesService {
   async update(
     speciality_id: number,
     updateSpecialityDto: UpdateSpecialityDto,
-  ) {
+  ): Promise<MessageResult> {
     const speciality = await this.prisma.speciality.findUnique({
       where: {
         speciality_id,
@@ -126,7 +141,7 @@ export class SpecialitiesService {
     };
   }
 
-  async remove(speciality_id: number) {
+  async remove(speciality_id: number): Promise<MessageResult> {
     const speciality = await this.prisma.speciality.findUnique({
       where: {
         speciality_id,
@@ -149,7 +164,7 @@ export class SpecialitiesService {
     };
   }
 
-  async changeState(speciality_id: number) {
+  async changeState(speciality_id: number): Promise<MessageResult> {
     let speciality = await this.prisma.speciality.findUnique({
       where: {
         speciality_id,

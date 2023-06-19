@@ -2,12 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateEvaluationDto } from './dto/create-evaluation.dto';
 import { UpdateEvaluationDto } from './dto/update-evaluation.dto';
 import { PrismaService } from 'src/prisma.service';
+import { EvaluationCreatedResult, MessageResult } from 'src/types/resultTypes';
 
 @Injectable()
 export class EvaluationsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createEvaluationDto: CreateEvaluationDto) {
+  async create(
+    createEvaluationDto: CreateEvaluationDto,
+  ): Promise<MessageResult> {
     const { student_grades, ...rest } = createEvaluationDto;
 
     const evaluation = await this.prisma.evalution.create({
@@ -31,7 +34,7 @@ export class EvaluationsService {
   async findBySpecialityAndDate(
     rotation_speciality_id: number,
     rotation_date_id: number,
-  ) {
+  ): Promise<EvaluationCreatedResult | MessageResult> {
     const evaluation = await this.prisma.evalution.findFirst({
       where: {
         rotation_speciality_id,
@@ -49,7 +52,7 @@ export class EvaluationsService {
   async update(
     evaluation_id: number,
     updateEvaluationDto: UpdateEvaluationDto,
-  ) {
+  ): Promise<MessageResult> {
     const evaluation = await this.prisma.evalution.findUnique({
       where: {
         evaluation_id,

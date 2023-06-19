@@ -17,6 +17,9 @@ export class CreateLocationDto {
   @ApiProperty()
   complexity: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Array<CreateLocationSpecialityDto>,
+    default: [{ speciality_id: 0, limit_capacity: 0 }],
+  })
   specialities: Array<CreateLocationSpecialityDto>;
 }

@@ -3,13 +3,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindUsersDto } from './dto/find-users.dto';
+import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
+import { UserItem } from 'src/types/entitiesTypes';
+import { PaginateFunction } from 'src/types/types';
+import { paginator } from 'src/util/Paginator';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  async create(createUser: CreateUserDto) {
+  async create(createUser: CreateUserDto): Promise<MessageResult> {
     let userAlreadyExists = await this.prisma.user.findUnique({
       where: {
         email: createUser.email,
@@ -46,7 +49,7 @@ export class UsersService {
       );
     }
 
-    const { speciality, ...rest } = createUser;
+    const { speciality_id, ...rest } = createUser;
 
     try {
       const hashPassword = await bcrypt.hash(createUser.password, 10);
@@ -55,15 +58,10 @@ export class UsersService {
       });
 
       if (createUser.role == 'Profesor') {
-        const specialityUser = await this.prisma.speciality.findUnique({
-          where: {
-            description: speciality,
-          },
-        });
         await this.prisma.professor_speciality.create({
           data: {
             user_id: user.user_id,
-            speciality_id: specialityUser.speciality_id,
+            speciality_id: speciality_id,
           },
         });
       }
@@ -79,7 +77,13 @@ export class UsersService {
     };
   }
 
-  async findAll(findUsersDto: FindUsersDto) {
+  async findAllStudents(
+    state: boolean,
+    name?: string,
+    identification?: number,
+    code?: string,
+    email?: string,
+  ): Promise<Array<UserItem>> {
     return await this.prisma.user.findMany({
       select: {
         user_id: true,
@@ -91,40 +95,125 @@ export class UsersService {
         email: true,
         state: true,
       },
-      where: {
-        name: {
-          contains: findUsersDto.name,
-          mode: 'insensitive',
-        },
-        lastname: {
-          contains: findUsersDto.lastname,
-          mode: 'insensitive',
-        },
-        code: {
-          contains: findUsersDto.code,
-          mode: 'insensitive',
-        },
-        email: {
-          contains: findUsersDto.email,
-          mode: 'insensitive',
-        },
-        role: {
-          contains: findUsersDto.role,
-          mode: 'insensitive',
-        },
-        identification: findUsersDto.identification,
-      },
+      where: name
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: name,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                lastname: {
+                  contains: name,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+            code: {
+              contains: code,
+              mode: 'insensitive',
+            },
+            email: {
+              contains: email,
+              mode: 'insensitive',
+            },
+            role: 'Estudiante',
+            identification: identification ? identification : undefined,
+            state,
+          }
+        : {
+            code: {
+              contains: code,
+              mode: 'insensitive',
+            },
+            email: {
+              contains: email,
+              mode: 'insensitive',
+            },
+            role: 'Estudiante',
+            identification: identification ? identification : undefined,
+            state,
+          },
       orderBy: {
         name: 'asc',
       },
     });
   }
 
-  async findAllPagination(
-    findUsersDto: FindUsersDto,
+  async findAllStudentsPagination(
     page: number,
-    quantity: number,
-  ) {
+    limit: number,
+    name?: string,
+    identification?: number,
+    code?: string,
+    email?: string,
+    state?: boolean,
+  ): Promise<PaginatedResult<UserItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.user,
+      {
+        page,
+        perPage: limit,
+      },
+      {
+        where: name
+          ? {
+              OR: [
+                {
+                  name: {
+                    contains: name,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  lastname: {
+                    contains: name,
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+              code: {
+                contains: code,
+                mode: 'insensitive',
+              },
+              email: {
+                contains: email,
+                mode: 'insensitive',
+              },
+              role: 'Estudiante',
+              identification: identification ? identification : undefined,
+              state,
+            }
+          : {
+              code: {
+                contains: code,
+                mode: 'insensitive',
+              },
+              email: {
+                contains: email,
+                mode: 'insensitive',
+              },
+              role: 'Estudiante',
+              identification: identification ? identification : undefined,
+              state,
+            },
+        orderBy: {
+          name: 'asc',
+        },
+      },
+    );
+  }
+
+  async findAllProfessors(
+    name: string,
+    identification: number,
+    code: string,
+    email: string,
+    state: boolean,
+  ): Promise<Array<UserItem>> {
     return await this.prisma.user.findMany({
       select: {
         user_id: true,
@@ -136,80 +225,119 @@ export class UsersService {
         email: true,
         state: true,
       },
-      where: {
-        name: {
-          contains: findUsersDto.name,
-          mode: 'insensitive',
-        },
-        lastname: {
-          contains: findUsersDto.lastname,
-          mode: 'insensitive',
-        },
-        code: {
-          contains: findUsersDto.code,
-          mode: 'insensitive',
-        },
-        email: {
-          contains: findUsersDto.email,
-          mode: 'insensitive',
-        },
-        role: {
-          contains: findUsersDto.role,
-          mode: 'insensitive',
-        },
-        identification: findUsersDto.identification,
-      },
-      orderBy: {
-        name: 'asc',
-      },
-      skip: page * quantity,
-      take: quantity,
-    });
-  }
-
-  async findActiveStudents(name: string) {
-    return await this.prisma.user.findMany({
-      select: {
-        name: true,
-        lastname: true,
-        code: true,
-        state: true,
-      },
-      where: {
-        state: true,
-        role: "Estudiante",
-        name: {
-          contains: name,
-        },
-      },
+      where: name
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: name,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                lastname: {
+                  contains: name,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+            code: {
+              contains: code,
+              mode: 'insensitive',
+            },
+            email: {
+              contains: email,
+              mode: 'insensitive',
+            },
+            role: 'Profesor',
+            identification: identification ? identification : undefined,
+            state,
+          }
+        : {
+            code: {
+              contains: code,
+              mode: 'insensitive',
+            },
+            email: {
+              contains: email,
+              mode: 'insensitive',
+            },
+            role: 'Profesor',
+            identification: identification ? identification : undefined,
+            state,
+          },
       orderBy: {
         name: 'asc',
       },
     });
   }
 
-  async findActiveProfessors(name: string) {
-    return await this.prisma.user.findMany({
-      select: {
-        name: true,
-        lastname: true,
-        code: true,
-        state: true,
+  async findAllProfessorsPagination(
+    page: number,
+    limit: number,
+    state: boolean,
+    name?: string,
+    identification?: number,
+    code?: string,
+    email?: string,
+  ): Promise<PaginatedResult<UserItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.user,
+      {
+        page,
+        perPage: limit,
       },
-      where: {
-        state: true,
-        role: "Profesor",
-        name: {
-          contains: name,
+      {
+        where: name
+          ? {
+              OR: [
+                {
+                  name: {
+                    contains: name,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  lastname: {
+                    contains: name,
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+              code: {
+                contains: code,
+                mode: 'insensitive',
+              },
+              email: {
+                contains: email,
+                mode: 'insensitive',
+              },
+              role: 'Profesor',
+              identification: identification ? identification : undefined,
+              state,
+            }
+          : {
+              code: {
+                contains: code,
+                mode: 'insensitive',
+              },
+              email: {
+                contains: email,
+                mode: 'insensitive',
+              },
+              role: 'Profesor',
+              identification: identification ? identification : undefined,
+              state,
+            },
+        orderBy: {
+          name: 'asc',
         },
       },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+    );
   }
 
-  async findOne(user_id: number) {
+  async findOne(user_id: number): Promise<UserItem> {
     const user = await this.prisma.user.findUnique({
       where: {
         user_id,
@@ -221,7 +349,10 @@ export class UsersService {
     return user;
   }
 
-  async update(user_id: number, updateUserDto: UpdateUserDto) {
+  async update(
+    user_id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<MessageResult> {
     const user = await this.prisma.user.findUnique({
       where: {
         user_id,
@@ -302,7 +433,7 @@ export class UsersService {
     };
   }
 
-  async remove(user_id: number) {
+  async remove(user_id: number): Promise<MessageResult> {
     const user = await this.prisma.user.findUnique({
       where: {
         user_id,
@@ -321,7 +452,7 @@ export class UsersService {
     };
   }
 
-  async changeState(user_id: number) {
+  async changeState(user_id: number): Promise<MessageResult> {
     let user = await this.prisma.user.findUnique({
       where: {
         user_id,

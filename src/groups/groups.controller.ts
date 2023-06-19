@@ -18,9 +18,17 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { PaginationDto } from 'src/util/Pagination.dto';
+import {
+  MessageResult,
+  PaginatedResult,
+  StudentsFinishRotationResult,
+} from 'src/types/resultTypes';
+import { GroupItem } from 'src/types/entitiesTypes';
 
 @ApiBearerAuth()
 @ApiTags('Groups')
@@ -37,7 +45,7 @@ export class GroupsController {
     description:
       'Registration of groups and their students in the database from the DTO',
   })
-  create(@Body() createGroupDto: CreateGroupDto) {
+  create(@Body() createGroupDto: CreateGroupDto): Promise<MessageResult> {
     return this.groupsService.create(createGroupDto);
   }
 
@@ -49,11 +57,20 @@ export class GroupsController {
     summary: 'Group consultation',
     description: 'Consultation of registered groups',
   })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'professor_user_id', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
   findAll(
     @Query('name') name?: string,
     @Query('professor_user_id') professor_user_id?: string,
-  ) {
-    return this.groupsService.findAll(name, +professor_user_id);
+    @Query('state') state = 'true',
+  ): Promise<Array<GroupItem>> {
+    console.log(state);
+    return this.groupsService.findAll(
+      JSON.parse(state),
+      name,
+      +professor_user_id,
+    );
   }
 
   @Get('/pagination')
@@ -64,17 +81,23 @@ export class GroupsController {
     summary: 'Group consultation with pagination',
     description: 'Consultation of registered groups with pagination',
   })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'professor_user_id', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
+  @ApiQuery({ type: PaginationDto })
   findAllPagination(
     @Query('name') name?: string,
     @Query('professor_user_id') professor_user_id?: string,
+    @Query('state') state = 'true',
     @Query('page') page = '0',
-    @Query('quantity') quantity = '10',
-  ) {
+    @Query('limit') limit = '10',
+  ): Promise<PaginatedResult<GroupItem>> {
     return this.groupsService.findAllPagination(
+      JSON.parse(state),
+      +page,
+      +limit,
       name,
       +professor_user_id,
-      +page,
-      +quantity,
     );
   }
 
@@ -86,7 +109,7 @@ export class GroupsController {
     summary: 'Specific group consultation',
     description: 'Consultation of specific group',
   })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<GroupItem> {
     return this.groupsService.findOne(+id);
   }
 
@@ -98,7 +121,10 @@ export class GroupsController {
     summary: 'Specific group update',
     description: 'Update of a specific group in the database',
   })
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateGroupDto: UpdateGroupDto,
+  ): Promise<MessageResult> {
     return this.groupsService.update(+id, updateGroupDto);
   }
 
@@ -110,7 +136,7 @@ export class GroupsController {
     summary: 'Deletion of a specific group',
     description: 'Deletion of a specific group in the database based on its id',
   })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<MessageResult> {
     return this.groupsService.remove(+id);
   }
 
@@ -123,7 +149,7 @@ export class GroupsController {
     description:
       'Deactivation/Activation of a specific group in the database based on its id',
   })
-  changeState(@Param('id') id: string) {
+  changeState(@Param('id') id: string): Promise<MessageResult> {
     return this.groupsService.changeState(+id);
   }
 
@@ -135,11 +161,12 @@ export class GroupsController {
     summary: 'Consultation of students',
     description: 'Consultation of students that finish rotation',
   })
+  @ApiQuery({ name: 'speciality_id', required: false, type: String })
   findStudentsFinishRotation(
     @Query('id') id: string,
     @Query('rotation_id') rotation_id: string,
     @Query('speciality_id') speciality_id?: string,
-  ) {
+  ): Promise<StudentsFinishRotationResult> {
     return this.groupsService.findStudentsFinishRotation(
       +id,
       +rotation_id,

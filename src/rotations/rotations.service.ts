@@ -3,14 +3,23 @@ import { CreateRotationDto } from './dto/create-rotation.dto';
 import { UpdateRotationDto } from './dto/update-rotation.dto';
 import { PrismaService } from 'src/prisma.service';
 import { CreateRotationDatesDto } from './dto/create-rotation-dates.dto';
-import { RotationDates } from 'src/types/types';
+import { PaginateFunction, RotationDates } from 'src/types/types';
 import * as moment from 'moment';
+import {
+  DatesRotationDatesResult,
+  MessageResult,
+  PaginatedResult,
+  RotationsOfGroupResult,
+  UsedDatesRotationResult,
+} from 'src/types/resultTypes';
+import { RotationItem } from 'src/types/entitiesTypes';
+import { paginator } from 'src/util/Paginator';
 
 @Injectable()
 export class RotationsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createRotationDto: CreateRotationDto) {
+  async create(createRotationDto: CreateRotationDto): Promise<MessageResult> {
     const startDate = new Date(createRotationDto.start_date);
     const finishDate = new Date(createRotationDto.finish_date);
 
@@ -90,7 +99,9 @@ export class RotationsService {
     };
   }
 
-  async createRotationDates(createRotationDatesDto: CreateRotationDatesDto) {
+  async createRotationDates(
+    createRotationDatesDto: CreateRotationDatesDto,
+  ): Promise<MessageResult> {
     const rotation = await this.prisma.rotation.findUnique({
       select: {
         rotation_date: {
@@ -157,29 +168,35 @@ export class RotationsService {
   }
 
   async findAll(
-    group_id: number,
-    location_id: number,
-    start_date: string,
-    finish_date: string,
-    semester: number,
-  ) {
+    group_id?: number,
+    location_id?: number,
+    start_date?: string,
+    finish_date?: string,
+    semester?: number,
+  ): Promise<Array<RotationItem>> {
     return await this.prisma.rotation.findMany({
       select: {
         rotation_id: true,
-        finish_date: true,
-        group: true,
-        location: true,
-        rotation_speciality: true,
         semester: true,
         start_date: true,
+        finish_date: true,
         state: true,
+        group: {
+          select: {
+            group_id: true,
+            name: true,
+            state: true,
+            professor_user: true,
+          },
+        },
+        location: true,
       },
       where: {
-        group_id: group_id,
-        location_id: location_id,
-        start_date: start_date,
-        finish_date: finish_date,
-        semester: semester,
+        group_id: group_id ? group_id : undefined,
+        location_id: location_id ? location_id : undefined,
+        start_date: start_date ? new Date(start_date) : undefined,
+        finish_date: finish_date ? new Date(finish_date) : undefined,
+        semester: semester ? semester : undefined,
       },
       orderBy: {
         start_date: 'asc',
@@ -188,51 +205,70 @@ export class RotationsService {
   }
 
   async findAllPagination(
-    group_id: number,
-    location_id: number,
-    start_date: string,
-    finish_date: string,
-    semester: number,
     page: number,
-    quantity: number,
-  ) {
-    return await this.prisma.rotation.findMany({
-      select: {
-        rotation_id: true,
-        finish_date: true,
-        group: true,
-        location: true,
-        rotation_speciality: true,
-        semester: true,
-        start_date: true,
-        state: true,
+    limit: number,
+    group_id?: number,
+    location_id?: number,
+    start_date?: string,
+    finish_date?: string,
+    semester?: number,
+  ): Promise<PaginatedResult<RotationItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.rotation,
+      {
+        page,
+        perPage: limit,
       },
-      where: {
-        group_id: group_id,
-        location_id: location_id,
-        start_date: start_date,
-        finish_date: finish_date,
-        semester: semester,
+      {
+        select: {
+          rotation_id: true,
+          semester: true,
+          start_date: true,
+          finish_date: true,
+          state: true,
+          group: {
+            select: {
+              group_id: true,
+              name: true,
+              state: true,
+              professor_user: true,
+            },
+          },
+          location: true,
+        },
+        where: {
+          group_id: group_id ? group_id : undefined,
+          location_id: location_id ? location_id : undefined,
+          start_date: start_date ? new Date(start_date) : undefined,
+          finish_date: finish_date ? new Date(finish_date) : undefined,
+          semester: semester ? semester : undefined,
+        },
+        orderBy: {
+          start_date: 'asc',
+        },
       },
-      orderBy: {
-        start_date: 'asc',
-      },
-      skip: page * quantity,
-      take: quantity,
-    });
+    );
   }
 
-  async findOne(rotation_id: number) {
+  async findOne(rotation_id: number): Promise<RotationItem> {
     const rotation = await this.prisma.rotation.findUnique({
       select: {
         rotation_id: true,
-        finish_date: true,
-        group: true,
-        location: true,
-        rotation_speciality: true,
         semester: true,
         start_date: true,
+        finish_date: true,
         state: true,
+        group: {
+          select: {
+            group_id: true,
+            name: true,
+            state: true,
+            professor_user: true,
+          },
+        },
+        location: true,
+        rotation_date: true,
       },
       where: {
         rotation_id,
@@ -244,7 +280,10 @@ export class RotationsService {
     return rotation;
   }
 
-  async update(rotation_id: number, updateRotationDto: UpdateRotationDto) {
+  async update(
+    rotation_id: number,
+    updateRotationDto: UpdateRotationDto,
+  ): Promise<MessageResult> {
     const rotation = await this.prisma.rotation.findUnique({
       select: {
         rotation_id: true,
@@ -409,7 +448,7 @@ export class RotationsService {
     };
   }
 
-  async remove(rotation_id: number) {
+  async remove(rotation_id: number): Promise<MessageResult> {
     const rotation = await this.prisma.rotation.findUnique({
       select: {
         rotation_id: true,
@@ -467,7 +506,9 @@ export class RotationsService {
   }
 
   //Dates for Rotation Creation
-  async findUsedDatesRotation(location_id: number) {
+  async findUsedDatesRotation(
+    location_id: number,
+  ): Promise<Array<UsedDatesRotationResult>> {
     const currentDate = new Date();
 
     return await this.prisma.rotation.findMany({
@@ -494,7 +535,9 @@ export class RotationsService {
   }
 
   //Used for table, similar to Excel sent by Leidy from UCEVA
-  async findDatesRotationDates(rotation_id: number) {
+  async findDatesRotationDates(
+    rotation_id: number,
+  ): Promise<Array<DatesRotationDatesResult>> {
     const rotation = await this.prisma.rotation.findUnique({
       select: {
         start_date: true,
@@ -536,7 +579,7 @@ export class RotationsService {
     rotation_speciality_id: number,
     start_date: number,
     finish_date: number,
-  ) {
+  ): Promise<number> {
     const usedCapacity = await this.prisma.rotation_date.count({
       where: {
         rotation_speciality_id,
@@ -566,7 +609,9 @@ export class RotationsService {
     return availableCapacity;
   }
 
-  async getRotationsOfGroup(group_id: number) {
+  async getRotationsOfGroup(
+    group_id: number,
+  ): Promise<Array<RotationsOfGroupResult>> {
     return this.prisma.rotation.findMany({
       select: {
         rotation_id: true,

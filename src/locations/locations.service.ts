@@ -3,6 +3,10 @@ import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { PrismaService } from 'src/prisma.service';
 import { CreateLocationSpecialityDto } from './dto/create-location-speciality.dto';
+import { LocationItem } from 'src/types/entitiesTypes';
+import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
+import { PaginateFunction } from 'src/types/types';
+import { paginator } from 'src/util/Paginator';
 
 @Injectable()
 export class LocationsService {
@@ -55,12 +59,12 @@ export class LocationsService {
   }
 
   async findAll(
-    name: string,
-    adress: string,
-    city: string,
-    complexity: string,
     state: boolean,
-  ) {
+    name?: string,
+    adress?: string,
+    city?: string,
+    complexity?: string,
+  ): Promise<Array<LocationItem>> {
     return await this.prisma.location.findMany({
       select: {
         location_id: true,
@@ -70,7 +74,6 @@ export class LocationsService {
         name: true,
         state: true,
         total_capacity: true,
-        location_speciality: true,
       },
       where: {
         name: {
@@ -98,43 +101,58 @@ export class LocationsService {
   }
 
   async findAllPagination(
-    name: string,
-    adress: string,
-    city: string,
-    complexity: string,
     state: boolean,
     page: number,
-    quantity: number,
-  ) {
-    return await this.prisma.location.findMany({
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
-        },
-        adress: {
-          contains: adress,
-          mode: 'insensitive',
-        },
-        city: {
-          contains: city,
-          mode: 'insensitive',
-        },
-        complexity: {
-          contains: complexity,
-          mode: 'insensitive',
-        },
-        state: state,
+    limit: number,
+    name?: string,
+    adress?: string,
+    city?: string,
+    complexity?: string,
+  ): Promise<PaginatedResult<LocationItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.location,
+      {
+        page,
+        perPage: limit,
       },
-      orderBy: {
-        name: 'asc',
+      {
+        select: {
+          location_id: true,
+          adress: true,
+          city: true,
+          complexity: true,
+          name: true,
+          state: true,
+          total_capacity: true,
+        },
+        where: {
+          name: {
+            contains: name,
+            mode: 'insensitive',
+          },
+          adress: {
+            contains: adress,
+            mode: 'insensitive',
+          },
+          city: {
+            contains: city,
+            mode: 'insensitive',
+          },
+          complexity: {
+            contains: complexity,
+            mode: 'insensitive',
+          },
+          state: state,
+        },
+        orderBy: {
+          name: 'asc',
+        },
       },
-      skip: page * quantity,
-      take: quantity,
-    });
+    );
   }
 
-  async findOne(location_id: number) {
+  async findOne(location_id: number): Promise<LocationItem> {
     const location = await this.prisma.location.findUnique({
       select: {
         location_id: true,
@@ -144,7 +162,14 @@ export class LocationsService {
         name: true,
         state: true,
         total_capacity: true,
-        location_speciality: true,
+        location_speciality: {
+          select: {
+            location_speciality_id: true,
+            limit_capacity: true,
+            state: true,
+            speciality: true,
+          },
+        },
       },
       where: {
         location_id,
@@ -159,7 +184,10 @@ export class LocationsService {
     return location;
   }
 
-  async update(location_id: number, updateLocationDto: UpdateLocationDto) {
+  async update(
+    location_id: number,
+    updateLocationDto: UpdateLocationDto,
+  ): Promise<MessageResult> {
     const location = await this.prisma.location.findUnique({
       select: {
         location_id: true,
@@ -284,7 +312,7 @@ export class LocationsService {
     };
   }
 
-  async remove(location_id: number) {
+  async remove(location_id: number): Promise<MessageResult> {
     const location = await this.prisma.location.findUnique({
       select: {
         location_id: true,
@@ -324,7 +352,7 @@ export class LocationsService {
     };
   }
 
-  async changeState(location_id: number) {
+  async changeState(location_id: number): Promise<MessageResult> {
     let location = await this.prisma.location.findUnique({
       where: {
         location_id,
