@@ -2,12 +2,20 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { PrismaService } from 'src/prisma.service';
+import { PaginateFunction } from 'src/types/types';
+import { paginator } from 'src/util/Paginator';
+import {
+  MessageResult,
+  PaginatedResult,
+  StudentsFinishRotationResult,
+} from 'src/types/resultTypes';
+import { GroupItem } from 'src/types/entitiesTypes';
 
 @Injectable()
 export class GroupsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createGroupDto: CreateGroupDto) {
+  async create(createGroupDto: CreateGroupDto): Promise<MessageResult> {
     const groupAlreadyExists = await this.prisma.group.findUnique({
       where: {
         name: createGroupDto.name,
@@ -39,14 +47,17 @@ export class GroupsService {
     };
   }
 
-  async findAll(name: string, professor_user_id: number) {
+  async findAll(
+    state: boolean,
+    name?: string,
+    professor_user_id?: number,
+  ): Promise<Array<GroupItem>> {
     return this.prisma.group.findMany({
       select: {
         group_id: true,
         name: true,
         state: true,
         professor_user: true,
-        group_detail: true,
       },
       where: {
         name: {
@@ -54,6 +65,7 @@ export class GroupsService {
           mode: 'insensitive',
         },
         professor_user_id: professor_user_id ? professor_user_id : undefined,
+        state,
       },
       orderBy: {
         name: 'asc',
@@ -62,36 +74,56 @@ export class GroupsService {
   }
 
   async findAllPagination(
-    name: string,
-    professor_user_id: number,
+    state: boolean,
     page: number,
-    quantity: number,
-  ) {
-    return this.prisma.group.findMany({
+    limit: number,
+    name?: string,
+    professor_user_id?: number,
+  ): Promise<PaginatedResult<GroupItem>> {
+    const paginate: PaginateFunction = paginator({});
+
+    return paginate(
+      this.prisma.group,
+      {
+        page,
+        perPage: limit,
+      },
+      {
+        select: {
+          group_id: true,
+          name: true,
+          state: true,
+          professor_user: true,
+        },
+        where: {
+          name: {
+            contains: name,
+            mode: 'insensitive',
+          },
+          professor_user_id: professor_user_id ? professor_user_id : undefined,
+          state,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      },
+    );
+  }
+
+  async findOne(group_id: number): Promise<GroupItem> {
+    const group = await this.prisma.group.findUnique({
       select: {
         group_id: true,
         name: true,
         state: true,
         professor_user: true,
-        group_detail: true,
-      },
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
+        group_detail: {
+          select: {
+            group_detail_id: true,
+            user: true,
+          },
         },
-        professor_user_id: professor_user_id,
       },
-      orderBy: {
-        name: 'asc',
-      },
-      skip: page * quantity,
-      take: quantity,
-    });
-  }
-
-  async findOne(group_id: number) {
-    const group = await this.prisma.group.findUnique({
       where: {
         group_id,
       },
@@ -102,7 +134,10 @@ export class GroupsService {
     return group;
   }
 
-  async update(group_id: number, updateGroupDto: UpdateGroupDto) {
+  async update(
+    group_id: number,
+    updateGroupDto: UpdateGroupDto,
+  ): Promise<MessageResult> {
     const hasDuplicates = (array: number[]) =>
       new Set(array).size < array.length;
 
@@ -187,7 +222,7 @@ export class GroupsService {
     };
   }
 
-  async remove(group_id: number) {
+  async remove(group_id: number): Promise<MessageResult> {
     const group = await this.prisma.group.findUnique({
       select: {
         group_id: true,
@@ -225,7 +260,7 @@ export class GroupsService {
     };
   }
 
-  async changeState(group_id: number) {
+  async changeState(group_id: number): Promise<MessageResult> {
     let group = await this.prisma.group.findUnique({
       where: {
         group_id,
@@ -257,7 +292,7 @@ export class GroupsService {
     group_id: number,
     rotation_id: number,
     speciality_id?: number,
-  ) {
+  ): Promise<StudentsFinishRotationResult> {
     const group = await this.prisma.group.findFirst({
       select: {
         group_id: true,
@@ -301,7 +336,7 @@ export class GroupsService {
         return {
           rotation_speciality_id: e.rotation_speciality_id,
           rotation_date_id: e.rotation_date_id,
-          ...e.student,
+          student: e.student,
         };
       }),
     };

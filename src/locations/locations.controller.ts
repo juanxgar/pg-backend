@@ -18,9 +18,13 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { PaginationDto } from 'src/util/Pagination.dto';
+import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
+import { LocationItem } from 'src/types/entitiesTypes';
 
 @ApiBearerAuth()
 @ApiTags('Locations')
@@ -37,7 +41,7 @@ export class LocationsController {
     description:
       'Registration of medical centers and their specialities in the database from the DTO',
   })
-  create(@Body() createLocationDto: CreateLocationDto) {
+  create(@Body() createLocationDto: CreateLocationDto): Promise<MessageResult> {
     return this.locationsService.create(createLocationDto);
   }
 
@@ -49,14 +53,25 @@ export class LocationsController {
     summary: 'Consultation of medical centers',
     description: 'Consultation of registered medical centers',
   })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'adress', required: false, type: String })
+  @ApiQuery({ name: 'city', required: false, type: String })
+  @ApiQuery({ name: 'complexity', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
   findAll(
-    @Query('name') name: string,
-    @Query('adress') adress: string,
-    @Query('city') city: string,
-    @Query('complexity') complexity: string,
-    @Query('state') state: boolean,
-  ) {
-    return this.locationsService.findAll(name, adress, city, complexity, state);
+    @Query('name') name?: string,
+    @Query('adress') adress?: string,
+    @Query('city') city?: string,
+    @Query('complexity') complexity?: string,
+    @Query('state') state = 'true',
+  ): Promise<Array<LocationItem>> {
+    return this.locationsService.findAll(
+      JSON.parse(state),
+      name,
+      adress,
+      city,
+      complexity,
+    );
   }
 
   @Get('/pagination')
@@ -67,23 +82,29 @@ export class LocationsController {
     summary: 'Consultation of medical centers with pagination',
     description: 'Consultation of registered medical centers with pagination',
   })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'adress', required: false, type: String })
+  @ApiQuery({ name: 'city', required: false, type: String })
+  @ApiQuery({ name: 'complexity', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
+  @ApiQuery({ type: PaginationDto })
   findAllPagination(
-    @Query('name') name: string,
-    @Query('adress') adress: string,
-    @Query('city') city: string,
-    @Query('complexity') complexity: string,
-    @Query('state') state: boolean,
+    @Query('name') name?: string,
+    @Query('adress') adress?: string,
+    @Query('city') city?: string,
+    @Query('complexity') complexity?: string,
+    @Query('state') state = 'true',
     @Query('page') page = '0',
-    @Query('quantity') quantity = '10',
-  ) {
+    @Query('limit') limit = '10',
+  ): Promise<PaginatedResult<LocationItem>> {
     return this.locationsService.findAllPagination(
+      JSON.parse(state),
+      +page,
+      +limit,
       name,
       adress,
       city,
       complexity,
-      state,
-      +page,
-      +quantity,
     );
   }
 
@@ -95,7 +116,7 @@ export class LocationsController {
     summary: 'Consultation of a specific medical center',
     description: 'Consultation of a specific medical center from its id',
   })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<LocationItem> {
     return this.locationsService.findOne(+id);
   }
 
@@ -110,7 +131,7 @@ export class LocationsController {
   update(
     @Param('id') id: string,
     @Body() updateLocationDto: UpdateLocationDto,
-  ) {
+  ): Promise<MessageResult> {
     return this.locationsService.update(+id, updateLocationDto);
   }
 
@@ -123,7 +144,7 @@ export class LocationsController {
     description:
       'Elimination of a specific medical center in the database based on its id',
   })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<MessageResult> {
     return this.locationsService.remove(+id);
   }
 
@@ -136,7 +157,7 @@ export class LocationsController {
     description:
       'Deactivation/Activation of a specific medical center in the database based on its id',
   })
-  changeState(@Param('id') id: string) {
+  changeState(@Param('id') id: string): Promise<MessageResult> {
     return this.locationsService.changeState(+id);
   }
 }

@@ -20,7 +20,11 @@ import {
   ApiAcceptedResponse,
   ApiTags,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
+import { SpecialityItem } from 'src/types/entitiesTypes';
+import { PaginationDto } from 'src/util/Pagination.dto';
 
 @ApiBearerAuth()
 @ApiTags('Specialities')
@@ -36,7 +40,9 @@ export class SpecialitiesController {
     summary: 'Creation of speciality',
     description: 'Registration of a speciality based on its DTO',
   })
-  create(@Body() createSpecialityDto: CreateSpecialityDto) {
+  create(
+    @Body() createSpecialityDto: CreateSpecialityDto,
+  ): Promise<MessageResult> {
     return this.specialitiesService.create(createSpecialityDto);
   }
 
@@ -48,11 +54,13 @@ export class SpecialitiesController {
     summary: 'Consultation of specialities',
     description: 'Consultation of registered specialities',
   })
+  @ApiQuery({ name: 'description', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
   findAll(
-    @Query('description') description: string,
-    @Query('state') state: boolean,
-  ) {
-    return this.specialitiesService.findAll(description, state);
+    @Query('description') description?: string,
+    @Query('state') state = 'true',
+  ): Promise<Array<SpecialityItem>> {
+    return this.specialitiesService.findAll(JSON.parse(state), description);
   }
 
   @Get('/pagination')
@@ -63,17 +71,20 @@ export class SpecialitiesController {
     summary: 'Consultation of specialities with pagination',
     description: 'Consultation of registered specialities with pagination',
   })
+  @ApiQuery({ name: 'description', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
+  @ApiQuery({ type: PaginationDto })
   findAllPagination(
-    @Query('description') description: string,
     @Query('state') state: boolean,
     @Query('page') page = '0',
-    @Query('quantity') quantity = '10',
-  ) {
+    @Query('limit') limit = '10',
+    @Query('description') description?: string,
+  ): Promise<PaginatedResult<SpecialityItem>> {
     return this.specialitiesService.findAllPagination(
-      description,
       state,
       +page,
-      +quantity,
+      +limit,
+      description,
     );
   }
 
@@ -85,7 +96,7 @@ export class SpecialitiesController {
     summary: 'Consultation of a specific speciality',
     description: 'Consultation of a specific speciality based on its id',
   })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<SpecialityItem> {
     return this.specialitiesService.findOne(+id);
   }
 
@@ -100,7 +111,7 @@ export class SpecialitiesController {
   update(
     @Param('id') id: string,
     @Body() updateSpecialityDto: UpdateSpecialityDto,
-  ) {
+  ): Promise<MessageResult> {
     return this.specialitiesService.update(+id, updateSpecialityDto);
   }
 
@@ -112,7 +123,7 @@ export class SpecialitiesController {
     summary: 'Elimination of a specific specility',
     description: 'Elimintation of a specific speciality based on its id',
   })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<MessageResult> {
     return this.specialitiesService.remove(+id);
   }
 
@@ -125,7 +136,7 @@ export class SpecialitiesController {
     description:
       'Deactivation/Activation of a specific speciality based on its id',
   })
-  changeState(@Param('id') id: string) {
+  changeState(@Param('id') id: string): Promise<MessageResult> {
     return this.specialitiesService.changeState(+id);
   }
 }

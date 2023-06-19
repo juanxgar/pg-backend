@@ -23,5 +23,5 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty()
-  speciality: string;
+  speciality_id: number;
 }

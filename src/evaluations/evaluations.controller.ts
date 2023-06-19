@@ -21,6 +21,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { EvaluationCreatedResult, MessageResult } from 'src/types/resultTypes';
 
 @ApiBearerAuth()
 @ApiTags('Evaluations')
@@ -36,7 +37,9 @@ export class EvaluationsController {
     summary: 'Evaluation creation',
     description: 'Creation of students evaluation in the database',
   })
-  create(@Body() createEvaluationDto: CreateEvaluationDto) {
+  create(
+    @Body() createEvaluationDto: CreateEvaluationDto,
+  ): Promise<MessageResult> {
     return this.evaluationsService.create(createEvaluationDto);
   }
 
@@ -52,7 +55,7 @@ export class EvaluationsController {
   findBySpecialityAndDate(
     @Query('rotation_speciality_id') rotation_speciality_id: string,
     @Query('rotation_date_id') rotation_date_id: string,
-  ) {
+  ): Promise<EvaluationCreatedResult | MessageResult> {
     return this.evaluationsService.findBySpecialityAndDate(
       +rotation_speciality_id,
       +rotation_date_id,
@@ -71,7 +74,7 @@ export class EvaluationsController {
   update(
     @Param('id') id: string,
     @Body() updateEvaluationDto: UpdateEvaluationDto,
-  ) {
+  ): Promise<MessageResult> {
     return this.evaluationsService.update(+id, updateEvaluationDto);
   }
 }

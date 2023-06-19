@@ -7,6 +7,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { v4 } from 'uuid';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { MailService } from 'src/mail/mail.service';
+import { LoginResult, MessageResult } from 'src/types/resultTypes';
 
 @Injectable()
 export class AuthService {
@@ -14,9 +15,9 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) { }
+  ) {}
 
-  async signIn(loginDto: LoginDto) {
+  async signIn(loginDto: LoginDto): Promise<LoginResult> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: loginDto.email,
@@ -47,7 +48,9 @@ export class AuthService {
     };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<MessageResult> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: resetPasswordDto.email,
@@ -74,7 +77,7 @@ export class AuthService {
     };
   }
 
-  async newPassword(newPasswordDto: NewPasswordDto) {
+  async newPassword(newPasswordDto: NewPasswordDto): Promise<MessageResult> {
     let user = await this.prisma.user.findFirst({
       where: {
         reset_password_token: newPasswordDto.resetPasswordToken,
