@@ -2,6 +2,7 @@ import { UserItem } from './entitiesTypes';
 
 export type LoginResult = {
   token: string;
+  role: string;
 };
 
 export type MessageResult = {
