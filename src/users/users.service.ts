@@ -289,6 +289,16 @@ export class UsersService {
         perPage: limit,
       },
       {
+        select: {
+          user_id: true,
+          name: true,
+          lastname: true,
+          identification: true,
+          code: true,
+          email: true,
+          state: true,
+          professor_speciality: true,
+        },
         where: name
           ? {
               OR: [
