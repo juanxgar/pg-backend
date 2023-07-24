@@ -298,7 +298,9 @@ export class UsersService {
           email: true,
           state: true,
           professor_speciality: {
-            speciality: true,
+            select: {
+              speciality: true,
+            },
           },
         },
         where: name
