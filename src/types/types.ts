@@ -14,3 +14,10 @@ export type PaginateFunction = <T, K>(
   options?: PaginateOptions,
   args?: K,
 ) => Promise<PaginatedResult<T>>;
+
+export type DecodedToken = {
+  email: string;
+  user_id: number;
+  iat: number;
+  exp: number;
+};
