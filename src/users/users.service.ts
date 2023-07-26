@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Headers, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -7,10 +7,14 @@ import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
 import { UserItem } from 'src/types/entitiesTypes';
 import { PaginateFunction } from 'src/types/types';
 import { paginator } from 'src/util/Paginator';
+import { JWTUtil } from 'src/util/JWTUtil';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly jwtUtil: JWTUtil,
+  ) {}
 
   async create(createUser: CreateUserDto): Promise<MessageResult> {
     let userAlreadyExists = await this.prisma.user.findUnique({
@@ -75,6 +79,21 @@ export class UsersService {
     return {
       message: 'Usuario creado satisfactoriamente',
     };
+  }
+
+  async findLoggedUser(auth: string) {
+    const decodedToken = this.jwtUtil.decode(auth);
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        user_id: decodedToken.user_id,
+      },
+    });
+    if (!user) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.BAD_REQUEST);
+    }
+    return user;
+    
   }
 
   async findAllStudents(

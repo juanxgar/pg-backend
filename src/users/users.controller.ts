@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Patch,
+  Headers,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,6 +26,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PaginationDto } from 'src/util/Pagination.dto';
 import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
 import { UserItem } from 'src/types/entitiesTypes';
+import { DecodedToken } from 'src/types/types';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -168,6 +170,18 @@ export class UsersController {
       code,
       email,
     );
+  }
+
+  @Get('me')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consulting of logged user',
+    description: 'Consultation of logged user',
+  })
+  findLoggedUser(@Headers('Authorization') auth: string): Promise<UserItem> {
+    return this.usersService.findLoggedUser(auth);
   }
 
   @Get('unique/:id')
