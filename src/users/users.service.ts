@@ -93,7 +93,6 @@ export class UsersService {
       throw new HttpException('Usuario no encontrado', HttpStatus.BAD_REQUEST);
     }
     return user;
-    
   }
 
   async findAllStudents(
@@ -500,6 +499,26 @@ export class UsersService {
     });
     if (!user) {
       throw new HttpException('Usuario no encontrado', HttpStatus.BAD_REQUEST);
+    }
+    if (user.role === 'Profesor') {
+      const professor_specialities =
+        await this.prisma.professor_speciality.findMany({
+          where: {
+            user_id: user.user_id,
+          },
+        });
+
+      const professor_specialties_ids = professor_specialities.map((e) => {
+        return e.professor_especiality_id;
+      });
+
+      await this.prisma.professor_speciality.deleteMany({
+        where: {
+          professor_especiality_id: {
+            in: professor_specialties_ids,
+          },
+        },
+      });
     }
     await this.prisma.user.delete({
       where: {
