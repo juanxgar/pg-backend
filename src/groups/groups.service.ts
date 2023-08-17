@@ -199,7 +199,7 @@ export class GroupsService {
     if (rest.name) {
       const groupByName = await this.prisma.group.findUnique({
         where: {
-          name: rest.name,
+          name: updateGroupDto.name,
         },
       });
       if (groupByName && groupByName.name != group.name) {
@@ -214,7 +214,10 @@ export class GroupsService {
       where: {
         group_id,
       },
-      data: rest,
+      data: {
+        name: updateGroupDto.name,
+        professor_user_id: updateGroupDto.professor_user_id,
+      },
     });
 
     return {
