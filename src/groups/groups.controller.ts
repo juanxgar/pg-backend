@@ -65,7 +65,6 @@ export class GroupsController {
     @Query('professor_user_id') professor_user_id?: string,
     @Query('state') state = 'true',
   ): Promise<Array<GroupItem>> {
-    console.log(state);
     return this.groupsService.findAll(
       JSON.parse(state),
       name,
