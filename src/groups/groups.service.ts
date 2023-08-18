@@ -9,7 +9,8 @@ import {
   PaginatedResult,
   StudentsFinishRotationResult,
 } from 'src/types/resultTypes';
-import { GroupItem } from 'src/types/entitiesTypes';
+import { GroupDetailItem, GroupItem, UserItem } from 'src/types/entitiesTypes';
+import { user } from '@prisma/client';
 
 @Injectable()
 export class GroupsService {
@@ -110,6 +111,43 @@ export class GroupsService {
     );
   }
 
+  async findGroupDetailPagination(
+    page: number,
+    limit: number,
+    group_id: number,
+    name?: string,
+  ): Promise<PaginatedResult<GroupDetailItem>> {
+    const paginate: PaginateFunction = paginator({});
+
+    return paginate(
+      this.prisma.group_detail,
+      {
+        page,
+        perPage: limit,
+      },
+      {
+        select: {
+          group_detail_id: true,
+          user: true,
+        },
+        where: {
+          group_id,
+          user: {
+            name: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
+        },
+        orderBy: {
+          user: {
+            name: 'asc',
+          },
+        },
+      },
+    );
+  }
+
   async findOne(group_id: number): Promise<GroupItem> {
     const group = await this.prisma.group.findUnique({
       select: {
@@ -196,7 +234,6 @@ export class GroupsService {
       });
     }
 
-    
     if (rest.name) {
       const groupByName = await this.prisma.group.findUnique({
         where: {
