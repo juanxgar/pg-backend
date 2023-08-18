@@ -28,7 +28,7 @@ import {
   PaginatedResult,
   StudentsFinishRotationResult,
 } from 'src/types/resultTypes';
-import { GroupItem } from 'src/types/entitiesTypes';
+import { GroupDetailItem, GroupItem } from 'src/types/entitiesTypes';
 
 @ApiBearerAuth()
 @ApiTags('Groups')
@@ -97,6 +97,30 @@ export class GroupsController {
       +limit,
       name,
       +professor_user_id,
+    );
+  }
+
+  @Get('/detail/pagination/:id')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Group Detail consultation with pagination',
+    description: 'Consultation of registered group details with pagination',
+  })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ type: PaginationDto })
+  findGroupDetailPagination(
+    @Param('id') id: string,
+    @Query('name') name?: string,
+    @Query('page') page = '0',
+    @Query('limit') limit = '10',
+  ): Promise<PaginatedResult<GroupDetailItem>> {
+    return this.groupsService.findGroupDetailPagination(
+      +page,
+      +limit,
+      +id,
+      name,
     );
   }
 
