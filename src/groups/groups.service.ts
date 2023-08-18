@@ -196,6 +196,7 @@ export class GroupsService {
       });
     }
 
+    
     if (rest.name) {
       const groupByName = await this.prisma.group.findUnique({
         where: {
