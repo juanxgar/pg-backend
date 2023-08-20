@@ -75,13 +75,13 @@ export class SpecialitiesController {
   @ApiQuery({ name: 'state', required: false, type: Boolean })
   @ApiQuery({ type: PaginationDto })
   findAllPagination(
-    @Query('state') state: boolean,
+    @Query('state') state = 'true',
     @Query('page') page = '0',
     @Query('limit') limit = '10',
     @Query('description') description?: string,
   ): Promise<PaginatedResult<SpecialityItem>> {
     return this.specialitiesService.findAllPagination(
-      state,
+      JSON.parse(state),
       +page,
       +limit,
       description,
