@@ -168,6 +168,7 @@ export class LocationsService {
       {
         select: {
           location_speciality_id: true,
+          limit_capacity: true,
           speciality: true,
         },
         where: {
