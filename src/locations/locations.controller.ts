@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from 'src/util/Pagination.dto';
 import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
-import { LocationItem } from 'src/types/entitiesTypes';
+import { LocationItem, LocationSpecialityItem } from 'src/types/entitiesTypes';
 
 @ApiBearerAuth()
 @ApiTags('Locations')
@@ -105,6 +105,30 @@ export class LocationsController {
       adress,
       city,
       complexity,
+    );
+  }
+
+  @Get('/detail/pagination/:id')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Group Detail consultation with pagination',
+    description: 'Consultation of registered group details with pagination',
+  })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ type: PaginationDto })
+  findGroupDetailPagination(
+    @Param('id') id: string,
+    @Query('description') description?: string,
+    @Query('page') page = '0',
+    @Query('limit') limit = '10',
+  ): Promise<PaginatedResult<LocationSpecialityItem>> {
+    return this.locationsService.findLocationDetailPagination(
+      +page,
+      +limit,
+      +id,
+      description,
     );
   }
 
