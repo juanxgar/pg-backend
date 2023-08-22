@@ -3,7 +3,7 @@ import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { PrismaService } from 'src/prisma.service';
 import { CreateLocationSpecialityDto } from './dto/create-location-speciality.dto';
-import { LocationItem } from 'src/types/entitiesTypes';
+import { LocationItem, LocationSpecialityItem } from 'src/types/entitiesTypes';
 import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
 import { PaginateFunction } from 'src/types/types';
 import { paginator } from 'src/util/Paginator';
@@ -147,6 +147,42 @@ export class LocationsService {
         },
         orderBy: {
           name: 'asc',
+        },
+      },
+    );
+  }
+
+  async findLocationDetailPagination(
+    page: number,
+    limit: number,
+    location_id: number,
+    description?: string,
+  ): Promise<PaginatedResult<LocationSpecialityItem>> {
+    const paginate: PaginateFunction = paginator({});
+    return paginate(
+      this.prisma.location_speciality,
+      {
+        page,
+        perPage: limit,
+      },
+      {
+        select: {
+          location_speciality_id: true,
+          speciality: true,
+        },
+        where: {
+          location_id,
+          speciality: {
+            description: {
+              contains: description,
+              mode: 'insensitive',
+            },
+          },
+        },
+        orderBy: {
+          speciality: {
+            description: 'asc',
+          },
         },
       },
     );

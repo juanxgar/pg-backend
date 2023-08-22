@@ -9,8 +9,7 @@ import {
   PaginatedResult,
   StudentsFinishRotationResult,
 } from 'src/types/resultTypes';
-import { GroupDetailItem, GroupItem, UserItem } from 'src/types/entitiesTypes';
-import { user } from '@prisma/client';
+import { GroupDetailItem, GroupItem } from 'src/types/entitiesTypes';
 
 @Injectable()
 export class GroupsService {
@@ -65,7 +64,7 @@ export class GroupsService {
           contains: name,
           mode: 'insensitive',
         },
-        professor_user_id: professor_user_id ? professor_user_id : undefined,
+        professor_user_id: professor_user_id || undefined,
         state,
       },
       orderBy: {
@@ -101,7 +100,7 @@ export class GroupsService {
             contains: name,
             mode: 'insensitive',
           },
-          professor_user_id: professor_user_id ? professor_user_id : undefined,
+          professor_user_id: professor_user_id || undefined,
           state,
         },
         orderBy: {
@@ -352,7 +351,7 @@ export class GroupsService {
                   lte: new Date(),
                 },
                 rotation_speciality: {
-                  speciality_id: speciality_id ? speciality_id : undefined,
+                  speciality_id: speciality_id || undefined,
                 },
               },
             },
