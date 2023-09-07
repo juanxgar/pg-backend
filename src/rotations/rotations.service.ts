@@ -168,6 +168,7 @@ export class RotationsService {
   }
 
   async findAll(
+    state: boolean,
     group_id?: number,
     location_id?: number,
     start_date?: string,
@@ -192,11 +193,11 @@ export class RotationsService {
         location: true,
       },
       where: {
-        group_id: group_id ? group_id : undefined,
-        location_id: location_id ? location_id : undefined,
+        group_id: group_id || undefined,
+        location_id: location_id || undefined,
         start_date: start_date ? new Date(start_date) : undefined,
         finish_date: finish_date ? new Date(finish_date) : undefined,
-        semester: semester ? semester : undefined,
+        semester: semester || undefined,
       },
       orderBy: {
         start_date: 'asc',
@@ -205,6 +206,7 @@ export class RotationsService {
   }
 
   async findAllPagination(
+    state: boolean,
     page: number,
     limit: number,
     group_id?: number,
@@ -238,11 +240,12 @@ export class RotationsService {
           location: true,
         },
         where: {
-          group_id: group_id ? group_id : undefined,
-          location_id: location_id ? location_id : undefined,
+          group_id: group_id || undefined,
+          location_id: location_id || undefined,
           start_date: start_date ? new Date(start_date) : undefined,
           finish_date: finish_date ? new Date(finish_date) : undefined,
-          semester: semester ? semester : undefined,
+          semester: semester || undefined,
+          state,
         },
         orderBy: {
           start_date: 'asc',

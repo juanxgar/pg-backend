@@ -116,7 +116,7 @@ export class LocationsController {
     summary: 'Group Detail consultation with pagination',
     description: 'Consultation of registered group details with pagination',
   })
-  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ description: 'description', required: false, type: String })
   @ApiQuery({ type: PaginationDto })
   findGroupDetailPagination(
     @Param('id') id: string,
