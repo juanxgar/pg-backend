@@ -30,6 +30,7 @@ import {
   UsedDatesRotationResult,
 } from 'src/types/resultTypes';
 import { RotationItem } from 'src/types/entitiesTypes';
+import { PaginationDto } from 'src/util/Pagination.dto';
 
 @ApiBearerAuth()
 @ApiTags('Rotations')
@@ -76,14 +77,17 @@ export class RotationsController {
   @ApiQuery({ name: 'start_date', required: false, type: String })
   @ApiQuery({ name: 'finish_date', required: false, type: String })
   @ApiQuery({ name: 'semester', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
   findAll(
     @Query('group_id') group_id?: string,
     @Query('location_id') location_id?: string,
     @Query('start_date') start_date?: string,
     @Query('finish_date') finish_date?: string,
     @Query('semester') semester?: string,
+    @Query('state') state = 'true',
   ): Promise<Array<RotationItem>> {
     return this.rotationsService.findAll(
+      JSON.parse(state),
       +group_id,
       +location_id,
       start_date,
@@ -106,16 +110,20 @@ export class RotationsController {
   @ApiQuery({ name: 'start_date', required: false, type: String })
   @ApiQuery({ name: 'finish_date', required: false, type: String })
   @ApiQuery({ name: 'semester', required: false, type: String })
+  @ApiQuery({ name: 'state', required: false, type: Boolean })
+  @ApiQuery({ type: PaginationDto })
   findAllPagination(
     @Query('group_id') group_id?: string,
     @Query('location_id') location_id?: string,
     @Query('start_date') start_date?: string,
     @Query('finish_date') finish_date?: string,
     @Query('semester') semester?: string,
+    @Query('state') state = 'true',
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ): Promise<PaginatedResult<RotationItem>> {
     return this.rotationsService.findAllPagination(
+      JSON.parse(state),
       +page,
       +limit,
       +group_id,
