@@ -108,17 +108,33 @@ export class LocationsController {
     );
   }
 
+  @Get('/detail/:id')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Location Detail consultation',
+    description: 'Consultation of registered location details',
+  })
+  @ApiQuery({ name: 'description', required: false, type: String })
+  findLocationDetail(
+    @Param('id') id: string,
+    @Query('description') description?: string,
+  ): Promise<Array<LocationSpecialityItem>> {
+    return this.locationsService.findLocationDetail(+id, description);
+  }
+
   @Get('/detail/pagination/:id')
   @ApiAcceptedResponse({ description: 'OK response' })
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Group Detail consultation with pagination',
-    description: 'Consultation of registered group details with pagination',
+    summary: 'Location Detail consultation with pagination',
+    description: 'Consultation of registered location details with pagination',
   })
-  @ApiQuery({ description: 'description', required: false, type: String })
+  @ApiQuery({ name: 'description', required: false, type: String })
   @ApiQuery({ type: PaginationDto })
-  findGroupDetailPagination(
+  findLocationDetailPagination(
     @Param('id') id: string,
     @Query('description') description?: string,
     @Query('page') page = '0',
