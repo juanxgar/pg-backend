@@ -152,6 +152,34 @@ export class LocationsService {
     );
   }
 
+  async findLocationDetail(
+    location_id: number,
+    description?: string,
+  ): Promise<Array<LocationSpecialityItem>> {
+    return this.prisma.location_speciality.findMany({
+      select: {
+        location_speciality_id: true,
+        limit_capacity: true,
+        speciality: true,
+        state: true,
+      },
+      where: {
+        location_id,
+        speciality: {
+          description: {
+            contains: description,
+            mode: 'insensitive',
+          },
+        },
+      },
+      orderBy: {
+        speciality: {
+          description: 'asc',
+        },
+      },
+    });
+  }
+
   async findLocationDetailPagination(
     page: number,
     limit: number,
