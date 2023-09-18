@@ -121,12 +121,14 @@ export class UsersController {
   @ApiQuery({ name: 'identification', required: false, type: String })
   @ApiQuery({ name: 'code', required: false, type: String })
   @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'speciality_id', required: false, type: String })
   @ApiQuery({ name: 'state', required: false, type: Boolean })
   findAllProfessors(
     @Query('name') name?: string,
     @Query('identification') identification?: string,
     @Query('code') code?: string,
     @Query('email') email?: string,
+    @Query('speciality_id') speciality_id?: string,
     @Query('state') state = 'true',
   ): Promise<Array<UserItem>> {
     return this.usersService.findAllProfessors(
@@ -134,6 +136,7 @@ export class UsersController {
       +identification,
       code,
       email,
+      +speciality_id,
       JSON.parse(state),
     );
   }
@@ -150,6 +153,7 @@ export class UsersController {
   @ApiQuery({ name: 'identification', required: false, type: String })
   @ApiQuery({ name: 'code', required: false, type: String })
   @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'speciality_id', required: false, type: String })
   @ApiQuery({ name: 'state', required: false, type: Boolean })
   @ApiQuery({ type: PaginationDto })
   findAllPagination(
@@ -157,6 +161,7 @@ export class UsersController {
     @Query('identification') identification?: string,
     @Query('code') code?: string,
     @Query('email') email?: string,
+    @Query('speciality_id') speciality_id?: string,
     @Query('state') state = 'true',
     @Query('page') page = '0',
     @Query('limit') limit = '10',
@@ -169,6 +174,7 @@ export class UsersController {
       +identification,
       code,
       email,
+      +speciality_id,
     );
   }
 

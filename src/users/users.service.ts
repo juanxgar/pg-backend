@@ -1,4 +1,4 @@
-import { Headers, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -138,7 +138,7 @@ export class UsersService {
               mode: 'insensitive',
             },
             role: 'Estudiante',
-            identification: identification ? identification : undefined,
+            identification: identification || undefined,
             state,
           }
         : {
@@ -151,7 +151,7 @@ export class UsersService {
               mode: 'insensitive',
             },
             role: 'Estudiante',
-            identification: identification ? identification : undefined,
+            identification: identification || undefined,
             state,
           },
       orderBy: {
@@ -202,7 +202,7 @@ export class UsersService {
                 mode: 'insensitive',
               },
               role: 'Estudiante',
-              identification: identification ? identification : undefined,
+              identification: identification || undefined,
               state,
             }
           : {
@@ -215,7 +215,7 @@ export class UsersService {
                 mode: 'insensitive',
               },
               role: 'Estudiante',
-              identification: identification ? identification : undefined,
+              identification: identification || undefined,
               state,
             },
         orderBy: {
@@ -226,12 +226,29 @@ export class UsersService {
   }
 
   async findAllProfessors(
-    name: string,
-    identification: number,
-    code: string,
-    email: string,
-    state: boolean,
+    name?: string,
+    identification?: number,
+    code?: string,
+    email?: string,
+    speciality_id?: number,
+    state?: boolean,
   ): Promise<Array<UserItem>> {
+    let professorsFromSpeciality: any;
+    let professorsId: any;
+    if (speciality_id) {
+      professorsFromSpeciality =
+        await this.prisma.professor_speciality.findMany({
+          select: {
+            user_id: true,
+          },
+          where: {
+            speciality_id,
+          },
+        });
+      professorsId = professorsFromSpeciality.map((e) => {
+        return e.user_id;
+      });
+    }
     return await this.prisma.user.findMany({
       select: {
         user_id: true,
@@ -242,6 +259,7 @@ export class UsersService {
         code: true,
         email: true,
         state: true,
+        professor_speciality: true,
       },
       where: name
         ? {
@@ -268,7 +286,10 @@ export class UsersService {
               mode: 'insensitive',
             },
             role: 'Profesor',
-            identification: identification ? identification : undefined,
+            identification: identification || undefined,
+            user_id: {
+              in: professorsId || undefined,
+            },
             state,
           }
         : {
@@ -281,7 +302,10 @@ export class UsersService {
               mode: 'insensitive',
             },
             role: 'Profesor',
-            identification: identification ? identification : undefined,
+            identification: identification || undefined,
+            user_id: {
+              in: professorsId || undefined,
+            },
             state,
           },
       orderBy: {
@@ -298,7 +322,24 @@ export class UsersService {
     identification?: number,
     code?: string,
     email?: string,
+    speciality_id?: number,
   ): Promise<PaginatedResult<UserItem>> {
+    let professorsFromSpeciality: any;
+    let professorsId: any;
+    if (speciality_id) {
+      professorsFromSpeciality =
+        await this.prisma.professor_speciality.findMany({
+          select: {
+            user_id: true,
+          },
+          where: {
+            speciality_id,
+          },
+        });
+      professorsId = professorsFromSpeciality.map((e) => {
+        return e.user_id;
+      });
+    }
     const paginate: PaginateFunction = paginator({});
     return paginate(
       this.prisma.user,
@@ -346,7 +387,10 @@ export class UsersService {
                 mode: 'insensitive',
               },
               role: 'Profesor',
-              identification: identification ? identification : undefined,
+              identification: identification || undefined,
+              user_id: {
+                in: professorsId || undefined,
+              },
               state,
             }
           : {
@@ -359,7 +403,10 @@ export class UsersService {
                 mode: 'insensitive',
               },
               role: 'Profesor',
-              identification: identification ? identification : undefined,
+              identification: identification || undefined,
+              user_id: {
+                in: professorsId || undefined,
+              },
               state,
             },
         orderBy: {
