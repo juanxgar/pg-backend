@@ -17,6 +17,8 @@ export class CreateRotationDto {
   @ApiProperty()
   semester: number;
 
-  @ApiProperty({ default: [{ speciality_id: 0, professor_user_id: 0 }] })
+  @ApiProperty({
+    default: [{ speciality_id: 0, professor_user_id: 0, number_weeks: 0 }],
+  })
   specialities: Array<CreateRotationSpecialityDto>;
 }
