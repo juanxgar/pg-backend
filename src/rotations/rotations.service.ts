@@ -80,10 +80,16 @@ export class RotationsService {
     });
 
     rotation.location.location_speciality.forEach((e) => {
-      const index = specialities.findIndex((v) =>
-        v.speciality_id.toString().includes(e.speciality_id.toString()),
-      );
-      specialities[index].available_capacity = e.limit_capacity;
+      let index = -1;
+      specialities.forEach((v, i) => {
+        if (v.speciality_id.toString().includes(e.speciality_id.toString())) {
+          index = i;
+        }
+      });
+
+      if (index != -1) {
+        specialities[index].available_capacity = e.limit_capacity;
+      }
     });
 
     specialities.forEach((e) => {
