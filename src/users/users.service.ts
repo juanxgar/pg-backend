@@ -498,7 +498,6 @@ export class UsersService {
           },
           where: {
             user_id,
-            speciality_id: updateUserDto.speciality_id,
           },
         });
       await this.prisma.professor_speciality.update({
