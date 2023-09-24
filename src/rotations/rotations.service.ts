@@ -537,6 +537,11 @@ export class RotationsService {
         },
       });
     }
+    await this.prisma.rotation.delete({
+      where: {
+        rotation_id,
+      },
+    });
 
     return {
       message: `Rotación eliminada correctamente`,
