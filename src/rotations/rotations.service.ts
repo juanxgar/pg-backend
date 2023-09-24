@@ -284,7 +284,7 @@ export class RotationsService {
             professor: true,
             speciality: true,
             number_weeks: true,
-          }
+          },
         },
       },
       where: {
@@ -308,7 +308,15 @@ export class RotationsService {
         group_id: true,
         group: true,
         location_id: true,
-        location: true,
+        location: {
+          select: {
+            location_id: true,
+            name: true,
+            adress: true,
+            city: true,
+            location_speciality: true,
+          },
+        },
         rotation_speciality: true,
         semester: true,
         start_date: true,
@@ -355,6 +363,19 @@ export class RotationsService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    rotation.location.location_speciality.forEach((e) => {
+      let index = -1;
+      specialities.forEach((v, i) => {
+        if (v.speciality_id.toString().includes(e.speciality_id.toString())) {
+          index = i;
+        }
+      });
+
+      if (index != -1) {
+        specialities[index].available_capacity = e.limit_capacity;
+      }
+    });
 
     //Specialities to create
     const specialitiesToCreateFilter = specialities.filter(
