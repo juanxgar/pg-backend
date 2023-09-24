@@ -278,6 +278,14 @@ export class RotationsService {
         },
         location: true,
         rotation_date: true,
+        rotation_speciality: {
+          select: {
+            rotation_speciality_id: true,
+            professor: true,
+            speciality: true,
+            number_weeks: true,
+          }
+        },
       },
       where: {
         rotation_id,
