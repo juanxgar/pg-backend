@@ -27,7 +27,6 @@ import {
   MessageResult,
   PaginatedResult,
   RotationsOfGroupResult,
-  UsedDatesRotationResult,
 } from 'src/types/resultTypes';
 import { RotationItem } from 'src/types/entitiesTypes';
 import { PaginationDto } from 'src/util/Pagination.dto';
@@ -184,7 +183,7 @@ export class RotationsController {
   })
   findUsedDatesRotation(
     @Param('locationId') locationId: string,
-  ): Promise<Array<UsedDatesRotationResult>> {
+  ): Promise<Array<DatesRotationDatesResult>> {
     return this.rotationsService.findUsedDatesRotation(+locationId);
   }
 

@@ -42,11 +42,6 @@ export type StudentsFinishRotationResult = {
   students: Array<StudentFinishesRotation>;
 };
 
-export type UsedDatesRotationResult = {
-  start_date: Date;
-  finish_date: Date;
-};
-
 export type DatesRotationDatesResult = {
   start_date: string;
   finish_date: string;
