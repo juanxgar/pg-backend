@@ -10,7 +10,6 @@ import {
   MessageResult,
   PaginatedResult,
   RotationsOfGroupResult,
-  UsedDatesRotationResult,
 } from 'src/types/resultTypes';
 import { RotationItem } from 'src/types/entitiesTypes';
 import { paginator } from 'src/util/Paginator';
@@ -575,10 +574,10 @@ export class RotationsService {
   //Dates for Rotation Creation
   async findUsedDatesRotation(
     location_id: number,
-  ): Promise<Array<UsedDatesRotationResult>> {
+  ): Promise<Array<DatesRotationDatesResult>> {
     const currentDate = new Date();
 
-    return await this.prisma.rotation.findMany({
+    const dates = await this.prisma.rotation.findMany({
       select: {
         start_date: true,
         finish_date: true,
@@ -598,6 +597,27 @@ export class RotationsService {
           },
         ],
       },
+    });
+
+    return dates.map((e) => {
+      return {
+        start_date: e.start_date
+          .toLocaleDateString('es-CO', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })
+          .replace('/', '-')
+          .replace('/', '-'),
+        finish_date: e.finish_date
+          .toLocaleDateString('es-CO', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })
+          .replace('/', '-')
+          .replace('/', '-'),
+      };
     });
   }
 
