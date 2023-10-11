@@ -373,6 +373,30 @@ export class RotationsService {
 
     const data = { start_date: startDate, finish_date: finishDate, ...rest };
 
+    const differenceInTime = finishDate.getTime() - startDate.getTime();
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24) + 1;
+
+    let numberDaysSpecialities = 0;
+    specialities.forEach((e) => {
+      numberDaysSpecialities = numberDaysSpecialities + e.number_weeks * 7;
+    });
+
+    if (numberDaysSpecialities > differenceInDays) {
+      const minimumDate = startDate;
+      minimumDate.setDate(startDate.getDate() + numberDaysSpecialities);
+      let minimumDateString = minimumDate.toLocaleDateString('es-CO', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      minimumDateString = minimumDateString.replace('/', '-').replace('/', '-');
+
+      throw new HttpException(
+        'La fecha mínima de finalización a asignar es ' + minimumDateString,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const specialitiesIdDto = specialities.map((e) => {
       return e.speciality_id;
     });
