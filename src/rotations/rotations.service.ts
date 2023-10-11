@@ -85,6 +85,34 @@ export class RotationsService {
       );
     }
 
+    const usedDates = await this.findUsedDatesRotation(
+      createRotationDto.location_id,
+    );
+
+    const startDate1 = moment(createRotationDto.start_date, 'YYYY-MM-DD');
+    const endDate1 = moment(createRotationDto.finish_date, 'YYYY-MM-DD');
+
+    let startDate2: moment.Moment;
+    let endDate2: moment.Moment;
+
+    usedDates.forEach((d) => {
+      startDate2 = moment(d.start_date, 'DD-MM-YYYY');
+      endDate2 = moment(d.finish_date, 'DD-MM-YYYY');
+      if (
+        startDate2.isAfter(startDate1) ||
+        (startDate2 === startDate1 && startDate2.isBefore(endDate1)) ||
+        startDate2 === endDate1 ||
+        endDate2.isAfter(startDate1) ||
+        (endDate2 === startDate1 && endDate2.isBefore(endDate1)) ||
+        endDate2 === endDate1
+      ) {
+        throw new HttpException(
+          'las fechas seleccionadas no deben tener fechas asignadas dentro de su rango escogido',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    });
+
     const rotation = await this.prisma.rotation.create({
       data,
       select: {
