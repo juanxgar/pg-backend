@@ -666,7 +666,7 @@ export class RotationsService {
       (rotation.finish_date.getTime() - rotation.start_date.getTime()) /
         (7 * 24 * 60 * 60 * 1000),
     );
-    const numberSeparatedWeeks = numberTotalWeeks / 2;
+    const numberSeparatedWeeks = numberTotalWeeks;
 
     let dates: RotationDates[] = [];
     let auxDate = rotation.start_date;
@@ -674,7 +674,7 @@ export class RotationsService {
       auxDate.setDate(auxDate.getDate() + 1);
       const start = moment(auxDate).format('YYYY-MM-DD');
 
-      auxDate.setDate(auxDate.getDate() + 13);
+      auxDate.setDate(auxDate.getDate() + 6);
       const finish = moment(auxDate).format('YYYY-MM-DD');
 
       dates.push({
