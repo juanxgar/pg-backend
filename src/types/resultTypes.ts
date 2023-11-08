@@ -52,3 +52,8 @@ export type RotationsOfGroupResult = {
   start_date: Date;
   finish_date: Date;
 };
+
+export type UsedRotationDatesBySpeciality = {
+  rotation_speciality_id: number;
+  used_dates: Array<DatesRotationDatesResult>;
+};

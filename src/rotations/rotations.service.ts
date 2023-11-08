@@ -10,6 +10,7 @@ import {
   MessageResult,
   PaginatedResult,
   RotationsOfGroupResult,
+  UsedRotationDatesBySpeciality,
 } from 'src/types/resultTypes';
 import { RotationItem } from 'src/types/entitiesTypes';
 import { paginator } from 'src/util/Paginator';
@@ -733,5 +734,76 @@ export class RotationsService {
         group_id,
       },
     });
+  }
+
+  async getStudentRotationDates(rotation_id: number, student_user_id: number) {
+    return this.prisma.rotation_date.findMany({
+      select: {
+        rotation_id: true,
+        rotation_speciality: true,
+        start_date: true,
+        finish_date: true,
+      },
+      where: {
+        rotation_id,
+        student_user_id,
+      },
+    });
+  }
+
+  async getUsedDatesFromSpecialities(rotation_id: number) {
+    const rotationSpecialities = await this.prisma.rotation_speciality.findMany(
+      {
+        select: {
+          rotation_speciality_id: true,
+          available_capacity: true,
+        },
+        where: {
+          rotation_id,
+        },
+      },
+    );
+
+    const datesRotation = await this.findDatesRotationDates(rotation_id);
+
+    const usedDates: Array<UsedRotationDatesBySpeciality> = [];
+    let countByDateAndSpeciality: number;
+    let usedDatesBySpeciality: Array<DatesRotationDatesResult> = [];
+    for (let i = 0; i < rotationSpecialities.length; i++) {
+      for (let j = 0; j < datesRotation.length; j++) {
+        countByDateAndSpeciality = await this.prisma.rotation_date.count({
+          where: {
+            OR: [
+              {
+                start_date: new Date(datesRotation[j].start_date),
+              },
+              {
+                finish_date: new Date(datesRotation[j].finish_date),
+              },
+            ],
+            rotation_speciality_id:
+              rotationSpecialities[i].rotation_speciality_id,
+          },
+        });
+        if (
+          countByDateAndSpeciality >= rotationSpecialities[i].available_capacity
+        ) {
+          usedDatesBySpeciality.push({
+            start_date: moment(datesRotation[j].start_date).format(
+              'YYYY-MM-DD',
+            ),
+            finish_date: moment(datesRotation[j].finish_date).format(
+              'YYYY-MM-DD',
+            ),
+          });
+        }
+      }
+      usedDates.push({
+        rotation_speciality_id: rotationSpecialities[i].rotation_speciality_id,
+        used_dates: usedDatesBySpeciality,
+      });
+      usedDatesBySpeciality = [];
+    }
+    return usedDates;
   }
 }
