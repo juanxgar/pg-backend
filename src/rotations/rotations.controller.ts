@@ -179,7 +179,7 @@ export class RotationsController {
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
     summary: 'Consultation of used dates',
-    description: 'Consultation of used dates of rotation',
+    description: 'Consultation of used dates of a specific rotation',
   })
   findUsedDatesRotation(
     @Param('locationId') locationId: string,
@@ -192,8 +192,9 @@ export class RotationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consultation of dates',
-    description: 'Consultation of dates of a specific rotation',
+    summary: 'Consultation of dates for table of rotations with students',
+    description:
+      'Consultation of dates of a specific rotation for table of rotatio with student',
   })
   findDatesRotationDates(
     @Param('rotationId') rotationId: string,
@@ -222,9 +223,48 @@ export class RotationsController {
     );
   }
 
+  @Get('/group/:groupId')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consultation of a rotation by group',
+    description: 'Consultation of a rotation by group',
+  })
   getRotationsOfGroup(
     @Param('groupId') groupId: string,
   ): Promise<Array<RotationsOfGroupResult>> {
     return this.rotationsService.getRotationsOfGroup(+groupId);
+  }
+
+  @Get('/student-dates')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consultation of capacitity of speciality',
+    description:
+      'Consultation of avaliable capacity of a speciality in a rotation between specified dates',
+  })
+  getStudentRotationDates(
+    @Query('rotationId') rotationId: string,
+    @Query('studentId') studentId: string,
+  ) {
+    return this.rotationsService.getStudentRotationDates(
+      +rotationId,
+      +studentId,
+    );
+  }
+
+  @Get('/specialities-dates/:rotationId')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consultation of used dates by specialities of rotation',
+    description: 'Consultation of used dates by specialities of a rotation',
+  })
+  getUsedDatesFromSpecialities(@Param('rotationId') rotationId: string) {
+    return this.rotationsService.getUsedDatesFromSpecialities(+rotationId);
   }
 }
