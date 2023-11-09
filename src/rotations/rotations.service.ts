@@ -309,6 +309,9 @@ export class RotationsService {
             speciality: true,
             number_weeks: true,
           },
+          orderBy: {
+            rotation_speciality_id: 'asc'
+          }
         },
       },
       where: {
@@ -763,6 +766,9 @@ export class RotationsService {
         where: {
           rotation_id,
         },
+        orderBy: {
+          rotation_speciality_id: 'asc',
+        },
       },
     );
 
@@ -787,16 +793,9 @@ export class RotationsService {
               rotationSpecialities[i].rotation_speciality_id,
           },
         });
-        console.log(
-          countByDateAndSpeciality,
-          rotationSpecialities[i].available_capacity,
-          datesRotation[j].start_date,
-          datesRotation[j].finish_date,
-        );
         if (
           countByDateAndSpeciality >= rotationSpecialities[i].available_capacity
         ) {
-          console.log('entra aqui');
           usedDatesBySpeciality.push({
             start_date: moment(datesRotation[j].start_date).format(
               'YYYY-MM-DD',
