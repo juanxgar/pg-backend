@@ -242,9 +242,8 @@ export class RotationsController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
   @ApiForbiddenResponse({ description: 'Unauthorized Request' })
   @ApiOperation({
-    summary: 'Consultation of capacitity of speciality',
-    description:
-      'Consultation of avaliable capacity of a speciality in a rotation between specified dates',
+    summary: 'Consultation of rotation dates of student',
+    description: 'Consultation of rotation dates of student',
   })
   getStudentRotationDates(
     @Query('rotationId') rotationId: string,
