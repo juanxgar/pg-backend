@@ -171,29 +171,76 @@ export class RotationsService {
       );
     }
 
-    const dates = createRotationDatesDto.rotation_dates.map((e) => {
-      if (e.available_capacity == 0) {
-        throw new HttpException(
-          'Hay especialidades a fechas asignadas que no tiene cupo disponible',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      return {
-        student_user_id: createRotationDatesDto.student_user_id,
+    const createdDates = await this.prisma.rotation_date.findMany({
+      where: {
         rotation_id: createRotationDatesDto.rotation_id,
-        rotation_speciality_id: e.rotation_speciality_id,
-        start_date: new Date(e.start_date),
-        finish_date: new Date(e.finish_date),
+        student_user_id: createRotationDatesDto.student_user_id,
+      },
+    });
+
+    if (createdDates.length === 0) {
+      const dates = createRotationDatesDto.rotation_dates.map((e) => {
+        if (e.available_capacity == 0) {
+          throw new HttpException(
+            'Hay especialidades a fechas asignadas que no tiene cupo disponible',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        return {
+          student_user_id: createRotationDatesDto.student_user_id,
+          rotation_id: createRotationDatesDto.rotation_id,
+          rotation_speciality_id: e.rotation_speciality_id,
+          start_date: new Date(e.start_date),
+          finish_date: new Date(e.finish_date),
+        };
+      });
+
+      await this.prisma.rotation_date.createMany({
+        data: dates,
+      });
+
+      return {
+        message:
+          'Fechas de rotación para el estudiante creadas satisfactoriamente',
+      };
+    }
+
+    const rotationSpecialityIds = createRotationDatesDto.rotation_dates.map(
+      (e) => {
+        return e.rotation_speciality_id;
+      },
+    );
+
+    let index: number;
+    const datesRotationsIds: Array<number> = [];
+    const updateDates = createdDates.map((e) => {
+      index = rotationSpecialityIds.indexOf(e.rotation_speciality_id);
+      datesRotationsIds.push(e.rotation_date_id);
+      return {
+        rotation_speciality_id:
+          createRotationDatesDto.rotation_dates[index].rotation_speciality_id,
+        start_date: new Date(
+          createRotationDatesDto.rotation_dates[index].start_date,
+        ),
+        finish_date: new Date(
+          createRotationDatesDto.rotation_dates[index].finish_date,
+        ),
       };
     });
 
-    await this.prisma.rotation_date.createMany({
-      data: dates,
-    });
-
+    let i = 0;
+    for (const e of datesRotationsIds) {
+      await this.prisma.rotation_date.update({
+        where: {
+          rotation_date_id: e,
+        },
+        data: updateDates[i],
+      });
+      i++;
+    }
     return {
       message:
-        'Fechas de rotación para el estudiante creadas satisfactoriamente',
+        'Fechas de rotación para el estudiante actualizadas satisfactoriamente',
     };
   }
 
@@ -310,8 +357,8 @@ export class RotationsService {
             number_weeks: true,
           },
           orderBy: {
-            rotation_speciality_id: 'asc'
-          }
+            rotation_speciality_id: 'asc',
+          },
         },
       },
       where: {
