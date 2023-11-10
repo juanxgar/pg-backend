@@ -1,4 +1,4 @@
-import { UserItem } from './entitiesTypes';
+import { SpecialityItem, UserItem } from './entitiesTypes';
 
 export type LoginResult = {
   token: string;
@@ -56,4 +56,18 @@ export type RotationsOfGroupResult = {
 export type UsedRotationDatesBySpeciality = {
   rotation_speciality_id: number;
   used_dates: Array<DatesRotationDatesResult>;
+};
+
+export type StudentRotation = {
+  student_user_id: number;
+  name: string;
+  lastname: string;
+  rotation_dates: Array<RotationDatesStudents>;
+};
+
+export type RotationDatesStudents = {
+  rotation_date_id: number;
+  speciality: SpecialityItem;
+  start_date: string;
+  finish_date: string;
 };

@@ -266,4 +266,16 @@ export class RotationsController {
   getUsedDatesFromSpecialities(@Param('rotationId') rotationId: string) {
     return this.rotationsService.getUsedDatesFromSpecialities(+rotationId);
   }
+
+  @Get('/used-dates/:rotationId')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Consultation of used dates by students',
+    description: 'Consultation of used dates by students',
+  })
+  findUsedDatesRotationDates(@Param('rotationId') rotationId: string) {
+    return this.rotationsService.findUsedDatesRotationDates(+rotationId);
+  }
 }

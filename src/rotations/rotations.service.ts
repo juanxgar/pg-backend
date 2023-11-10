@@ -9,7 +9,9 @@ import {
   DatesRotationDatesResult,
   MessageResult,
   PaginatedResult,
+  RotationDatesStudents,
   RotationsOfGroupResult,
+  StudentRotation,
   UsedRotationDatesBySpeciality,
 } from 'src/types/resultTypes';
 import { RotationItem } from 'src/types/entitiesTypes';
@@ -860,5 +862,79 @@ export class RotationsService {
       usedDatesBySpeciality = [];
     }
     return usedDates;
+  }
+
+  //Used in table of rotation dates
+  async findUsedDatesRotationDates(
+    rotation_id: number,
+  ): Promise<Array<StudentRotation>> {
+    const rotation = await this.prisma.rotation.findUnique({
+      select: {
+        rotation_id: true,
+        group: {
+          select: {
+            group_detail: {
+              select: {
+                user: {
+                  select: {
+                    user_id: true,
+                    name: true,
+                    lastname: true,
+                    rotation_date: {
+                      select: {
+                        rotation_date_id: true,
+                        rotation_speciality: {
+                          select: {
+                            speciality: true,
+                          },
+                        },
+                        start_date: true,
+                        finish_date: true,
+                      },
+                      orderBy: {
+                        rotation_speciality_id: 'asc',
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                user: {
+                  name: 'asc',
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        rotation_id,
+      },
+    });
+    if (!rotation) {
+      throw new HttpException('Rotación no encontrada', HttpStatus.BAD_REQUEST);
+    }
+
+    let rotation_dates: Array<RotationDatesStudents>;
+    const students: Array<StudentRotation> = rotation.group.group_detail.map(
+      (e) => {
+        rotation_dates = e.user.rotation_date.map((e2) => {
+          return {
+            rotation_date_id: e2.rotation_date_id,
+            speciality: e2.rotation_speciality.speciality,
+            start_date: moment(e2.start_date).format('YYYY-MM-DD'),
+            finish_date: moment(e2.finish_date).format('YYYY-MM-DD'),
+          };
+        });
+        return {
+          student_user_id: e.user.user_id,
+          name: e.user.name,
+          lastname: e.user.lastname,
+          rotation_dates,
+        };
+      },
+    );
+
+    return students;
   }
 }
