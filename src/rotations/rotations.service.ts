@@ -922,8 +922,12 @@ export class RotationsService {
           return {
             rotation_date_id: e2.rotation_date_id,
             speciality: e2.rotation_speciality.speciality,
-            start_date: moment(e2.start_date).format('YYYY-MM-DD'),
-            finish_date: moment(e2.finish_date).format('YYYY-MM-DD'),
+            start_date: moment(e2.start_date)
+              .add(1, 'days')
+              .format('YYYY-MM-DD'),
+            finish_date: moment(e2.finish_date)
+              .add(1, 'days')
+              .format('YYYY-MM-DD'),
           };
         });
         return {
