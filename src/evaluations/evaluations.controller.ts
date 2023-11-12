@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Put } from '@nestjs/common';
 import { EvaluationsService } from './evaluations.service';
 import { CreateEvaluationDto } from './dto/create-evaluation.dto';
 import { UpdateEvaluationDto } from './dto/update-evaluation.dto';
@@ -59,6 +49,25 @@ export class EvaluationsController {
     return this.evaluationsService.findBySpecialityAndDate(
       +rotation_speciality_id,
       +rotation_date_id,
+    );
+  }
+
+  @Get('/speciality-student')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Evaluation consultation if a evaluation is registered',
+    description:
+      'Consultation of registered evaluation from speciality and date',
+  })
+  findBySpecialityAndStudent(
+    @Query('rotation_speciality_id') rotation_speciality_id: string,
+    @Query('student_user_id') student_user_id: string,
+  ): Promise<EvaluationCreatedResult | MessageResult> {
+    return this.evaluationsService.findBySpecialityAndStudent(
+      +rotation_speciality_id,
+      +student_user_id,
     );
   }
 

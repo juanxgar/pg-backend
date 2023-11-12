@@ -24,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from 'src/util/Pagination.dto';
 import {
+  GroupInRotation,
   MessageResult,
   PaginatedResult,
   StudentsFinishRotationResult,
@@ -60,15 +61,18 @@ export class GroupsController {
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'professor_user_id', required: false, type: String })
   @ApiQuery({ name: 'state', required: false, type: Boolean })
+  @ApiQuery({ name: 'isInRotation', required: false, type: Boolean })
   findAll(
     @Query('name') name?: string,
     @Query('professor_user_id') professor_user_id?: string,
     @Query('state') state = 'true',
+    @Query('isInRotation') isInRotation?: boolean,
   ): Promise<Array<GroupItem>> {
     return this.groupsService.findAll(
       JSON.parse(state),
       name,
       +professor_user_id,
+      isInRotation,
     );
   }
 
@@ -195,5 +199,17 @@ export class GroupsController {
       +rotation_id,
       +speciality_id,
     );
+  }
+
+  @Get('/in-rotation')
+  @ApiAcceptedResponse({ description: 'OK response' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request for entity' })
+  @ApiForbiddenResponse({ description: 'Unauthorized Request' })
+  @ApiOperation({
+    summary: 'Groups in rotation',
+    description: 'Consultation of registered group in rotations currently',
+  })
+  findGroupsInRotation(): Promise<Array<GroupInRotation>> {
+    return this.groupsService.findGroupsRotation();
   }
 }

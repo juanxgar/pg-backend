@@ -1,4 +1,8 @@
-import { SpecialityItem, UserItem } from './entitiesTypes';
+import {
+  RotationSpecialityItem,
+  SpecialityItem,
+  UserItem,
+} from './entitiesTypes';
 
 export type LoginResult = {
   token: string;
@@ -16,6 +20,13 @@ export type EvaluationCreatedResult = {
   grade_value?: number;
   professor_comments?: string;
   student_comments: string;
+  student_grade?: Array<StudentGrade>;
+};
+export type StudentGrade = {
+  student_grade_id: number;
+  evaluation_id: number;
+  subdescription_exam_id: number;
+  grade_value: number;
 };
 
 export type PaginatedResult<T> = {
@@ -70,4 +81,35 @@ export type RotationDatesStudents = {
   speciality?: SpecialityItem;
   start_date: string;
   finish_date: string;
+};
+
+export type GroupInRotation = {
+  group_id: number;
+  name: string;
+  professor_user: UserInRotation;
+  group_detail: Array<GroupDetailInRotation>;
+  rotation?: Array<RotationInRotation>;
+};
+
+export type UserInRotation = {
+  user_id: number;
+  name: string;
+  lastname: string;
+};
+
+export type GroupDetailInRotation = {
+  user: UserInRotation;
+};
+
+export type RotationInRotation = {
+  rotation_speciality: Array<RotationSpecialityInRotation>;
+};
+
+export type RotationSpecialityInRotation = {
+  rotation_speciality_id: number;
+  speciality: SpecialityInRotation;
+};
+
+export type SpecialityInRotation = {
+  description: string;
 };

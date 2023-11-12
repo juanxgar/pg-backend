@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { PaginateFunction } from 'src/types/types';
 import { paginator } from 'src/util/Paginator';
 import {
+  GroupInRotation,
   MessageResult,
   PaginatedResult,
   StudentsFinishRotationResult,
@@ -51,6 +52,7 @@ export class GroupsService {
     state: boolean,
     name?: string,
     professor_user_id?: number,
+    isInRotation?: boolean,
   ): Promise<Array<GroupItem>> {
     return this.prisma.group.findMany({
       select: {
@@ -66,6 +68,16 @@ export class GroupsService {
         },
         professor_user_id: professor_user_id || undefined,
         state,
+        rotation: isInRotation && {
+          every: {
+            start_date: {
+              lte: new Date(),
+            },
+            finish_date: {
+              gte: new Date(),
+            },
+          },
+        },
       },
       orderBy: {
         name: 'asc',
@@ -380,5 +392,83 @@ export class GroupsService {
         };
       }),
     };
+  }
+
+  async findGroupsIdsInRotation(): Promise<Array<number>> {
+    const groupsIds = await this.prisma.rotation.findMany({
+      select: {
+        group_id: true,
+      },
+      where: {
+        start_date: {
+          lte: new Date(),
+        },
+        finish_date: {
+          gte: new Date(),
+        },
+      },
+    });
+
+    return groupsIds.map((e) => {
+      return e.group_id;
+    });
+  }
+
+  async findGroupsRotation(): Promise<Array<GroupInRotation>> {
+    const groupsIds = await this.findGroupsIdsInRotation();
+    return this.prisma.group.findMany({
+      select: {
+        group_id: true,
+        name: true,
+        professor_user: {
+          select: {
+            user_id: true,
+            name: true,
+            lastname: true,
+          },
+        },
+        group_detail: {
+          select: {
+            user: {
+              select: {
+                user_id: true,
+                name: true,
+                lastname: true,
+              },
+            },
+          },
+        },
+        rotation: {
+          select: {
+            rotation_speciality: {
+              select: {
+                rotation_speciality_id: true,
+                speciality: {
+                  select: {
+                    description: true,
+                  },
+                },
+              },
+            },
+          },
+          where: {
+            start_date: {
+              lte: new Date(),
+            },
+            finish_date: {
+              gte: new Date(),
+            },
+          },
+        },
+      },
+      where: {
+        group_id: {
+          in: groupsIds,
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
   }
 }
