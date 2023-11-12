@@ -49,6 +49,36 @@ export class EvaluationsService {
     return evaluation;
   }
 
+  async findBySpecialityAndStudent(
+    rotation_speciality_id: number,
+    student_user_id: number,
+  ): Promise<EvaluationCreatedResult | MessageResult> {
+    const evaluation = await this.prisma.evalution.findFirst({
+      select: {
+        evaluation_id: true,
+        rotation_speciality_id: true,
+        rotation_date_id: true,
+        grade_value: true,
+        professor_comments: true,
+        student_comments: true,
+        student_grade: true,
+      },
+      where: {
+        rotation_speciality_id,
+        rotation_date: {
+          student_user_id,
+          rotation_speciality_id,
+        },
+      },
+    });
+    if (!evaluation) {
+      return {
+        message: 'Evaluación no creada',
+      };
+    }
+    return evaluation;
+  }
+
   async update(
     evaluation_id: number,
     updateEvaluationDto: UpdateEvaluationDto,
