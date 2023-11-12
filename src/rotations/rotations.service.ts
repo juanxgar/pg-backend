@@ -915,21 +915,62 @@ export class RotationsService {
       throw new HttpException('Rotación no encontrada', HttpStatus.BAD_REQUEST);
     }
 
+    const datesRotation = await this.findDatesRotationDates(rotation_id);
+
     let rotation_dates: Array<RotationDatesStudents>;
     const students: Array<StudentRotation> = rotation.group.group_detail.map(
       (e) => {
-        rotation_dates = e.user.rotation_date.map((e2) => {
-          return {
-            rotation_date_id: e2.rotation_date_id,
-            speciality: e2.rotation_speciality.speciality,
-            start_date: moment(e2.start_date)
-              .add(1, 'days')
-              .format('YYYY-MM-DD'),
-            finish_date: moment(e2.finish_date)
-              .add(1, 'days')
-              .format('YYYY-MM-DD'),
-          };
-        });
+        rotation_dates = [];
+        for (let i = 0; i < e.user.rotation_date.length; i++) {
+          for (let j = 0; j < datesRotation.length; j++) {
+            if (
+              moment(e.user.rotation_date[i].start_date, 'YYYY-MM-DD')
+                .add(1, 'days')
+                .format('YYYY-MM-DD') ===
+                moment(datesRotation[j].start_date, 'YYYY-MM-DD').format(
+                  'YYYY-MM-DD',
+                ) ||
+              moment(e.user.rotation_date[i].finish_date, 'YYYY-MM-DD')
+                .add(1, 'days')
+                .format('YYYY-MM-DD') ===
+                moment(datesRotation[j].finish_date, 'YYYY-MM-DD').format(
+                  'YYYY-MM-DD',
+                )
+            ) {
+              rotation_dates.push({
+                rotation_date_id: e.user.rotation_date[i].rotation_date_id,
+                speciality:
+                  e.user.rotation_date[i].rotation_speciality.speciality,
+                start_date: datesRotation[j].start_date,
+                finish_date: datesRotation[j].finish_date,
+              });
+            } else {
+              if (
+                moment(datesRotation[j].start_date, 'YYYY-MM-DD').isBefore(
+                  moment(
+                    `${e.user.rotation_date[i].start_date.getFullYear()}-${
+                      e.user.rotation_date[i].start_date.getMonth() + 1
+                    }-${e.user.rotation_date[i].start_date.getDate()}`,
+                    'YYYY-MM-DD',
+                  ).add(1, 'days'),
+                )
+              ) {
+                if (
+                  rotation_dates.filter(
+                    (e) => e.start_date === datesRotation[j].start_date,
+                  ).length === 0
+                ) {
+                  rotation_dates.push({
+                    rotation_date_id: 0,
+                    start_date: datesRotation[j].start_date,
+                    finish_date: datesRotation[j].finish_date,
+                  });
+                }
+              }
+            }
+          }
+        }
+
         return {
           student_user_id: e.user.user_id,
           name: e.user.name,
