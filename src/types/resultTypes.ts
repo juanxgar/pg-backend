@@ -102,6 +102,9 @@ export type GroupDetailInRotation = {
 };
 
 export type RotationInRotation = {
+  rotation_id: number;
+  start_date: Date;
+  finish_date: Date;
   rotation_speciality: Array<RotationSpecialityInRotation>;
 };
 
