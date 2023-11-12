@@ -67,7 +67,7 @@ export type StudentRotation = {
 
 export type RotationDatesStudents = {
   rotation_date_id: number;
-  speciality: SpecialityItem;
+  speciality?: SpecialityItem;
   start_date: string;
   finish_date: string;
 };
