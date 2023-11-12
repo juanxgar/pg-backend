@@ -209,7 +209,9 @@ export class GroupsController {
     summary: 'Groups in rotation',
     description: 'Consultation of registered group in rotations currently',
   })
-  findGroupsInRotation(): Promise<Array<GroupInRotation>> {
-    return this.groupsService.findGroupsRotation();
+  findGroupsInRotation(
+    @Query('isCurrently') isCurrently = 'true',
+  ): Promise<Array<GroupInRotation>> {
+    return this.groupsService.findGroupsRotation(JSON.parse(isCurrently));
   }
 }

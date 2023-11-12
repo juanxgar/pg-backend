@@ -414,61 +414,106 @@ export class GroupsService {
     });
   }
 
-  async findGroupsRotation(): Promise<Array<GroupInRotation>> {
+  async findGroupsRotation(
+    isCurrently: boolean,
+  ): Promise<Array<GroupInRotation>> {
     const groupsIds = await this.findGroupsIdsInRotation();
-    return this.prisma.group.findMany({
-      select: {
-        group_id: true,
-        name: true,
-        professor_user: {
-          select: {
-            user_id: true,
-            name: true,
-            lastname: true,
+    if (isCurrently) {
+      return this.prisma.group.findMany({
+        select: {
+          group_id: true,
+          name: true,
+          professor_user: {
+            select: {
+              user_id: true,
+              name: true,
+              lastname: true,
+            },
           },
-        },
-        group_detail: {
-          select: {
-            user: {
-              select: {
-                user_id: true,
-                name: true,
-                lastname: true,
+          group_detail: {
+            select: {
+              user: {
+                select: {
+                  user_id: true,
+                  name: true,
+                  lastname: true,
+                },
               },
             },
           },
-        },
-        rotation: {
-          select: {
-            rotation_speciality: {
-              select: {
-                rotation_speciality_id: true,
-                speciality: {
-                  select: {
-                    description: true,
+          rotation: {
+            select: {
+              rotation_id: true,
+              rotation_speciality: {
+                select: {
+                  rotation_speciality_id: true,
+                  speciality: {
+                    select: {
+                      description: true,
+                    },
                   },
                 },
               },
             },
           },
-          where: {
-            start_date: {
-              lte: new Date(),
+        },
+        where: {
+          group_id: {
+            in: groupsIds,
+          },
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+    } else {
+      return this.prisma.group.findMany({
+        select: {
+          group_id: true,
+          name: true,
+          professor_user: {
+            select: {
+              user_id: true,
+              name: true,
+              lastname: true,
             },
-            finish_date: {
-              gte: new Date(),
+          },
+          group_detail: {
+            select: {
+              user: {
+                select: {
+                  user_id: true,
+                  name: true,
+                  lastname: true,
+                },
+              },
+            },
+          },
+          rotation: {
+            select: {
+              rotation_id: true,
+              rotation_speciality: {
+                select: {
+                  rotation_speciality_id: true,
+                  speciality: {
+                    select: {
+                      description: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
-      },
-      where: {
-        group_id: {
-          in: groupsIds,
+        where: {
+          group_id: {
+            notIn: groupsIds,
+          },
         },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+        orderBy: {
+          name: 'asc',
+        },
+      });
+    }
   }
 }
