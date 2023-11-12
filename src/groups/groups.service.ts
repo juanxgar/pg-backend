@@ -444,6 +444,8 @@ export class GroupsService {
           rotation: {
             select: {
               rotation_id: true,
+              start_date: true,
+              finish_date: true,
               rotation_speciality: {
                 select: {
                   rotation_speciality_id: true,
@@ -492,6 +494,8 @@ export class GroupsService {
           rotation: {
             select: {
               rotation_id: true,
+              start_date: true,
+              finish_date: true,
               rotation_speciality: {
                 select: {
                   rotation_speciality_id: true,
