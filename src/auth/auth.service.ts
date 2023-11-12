@@ -64,7 +64,7 @@ export class AuthService {
     if (!user) {
       throw new HttpException(
         'Correo electrónico no registrado',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
     user.reset_password_token = v4();
