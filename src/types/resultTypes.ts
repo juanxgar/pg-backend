@@ -88,7 +88,7 @@ export type GroupInRotation = {
   name: string;
   professor_user: UserInRotation;
   group_detail: Array<GroupDetailInRotation>;
-  rotation?: Array<RotationInRotation>;
+  rotation: Array<RotationInRotation>;
 };
 
 export type UserInRotation = {

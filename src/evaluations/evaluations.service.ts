@@ -42,9 +42,10 @@ export class EvaluationsService {
       },
     });
     if (!evaluation) {
-      return {
-        message: 'Evaluación no creada',
-      };
+      throw new HttpException(
+        'Evaluación no encontrada',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return evaluation;
   }
@@ -72,9 +73,10 @@ export class EvaluationsService {
       },
     });
     if (!evaluation) {
-      return {
-        message: 'Evaluación no creada',
-      };
+      throw new HttpException(
+        'Evaluación no encontrada',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return evaluation;
   }
