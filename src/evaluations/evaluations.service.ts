@@ -62,7 +62,17 @@ export class EvaluationsService {
         grade_value: true,
         professor_comments: true,
         student_comments: true,
-        student_grade: true,
+        student_grade: {
+          select: {
+            student_grade_id: true,
+            evaluation_id: true,
+            subdescription_exam_id: true,
+            grade_value: true,
+          },
+          orderBy: {
+            subdescription_exam_id: 'asc',
+          },
+        },
       },
       where: {
         rotation_speciality_id,
