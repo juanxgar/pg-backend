@@ -105,6 +105,7 @@ export type RotationInRotation = {
   rotation_id: number;
   start_date: Date;
   finish_date: Date;
+  location: LocationInRotation;
   rotation_speciality: Array<RotationSpecialityInRotation>;
 };
 
@@ -115,4 +116,9 @@ export type RotationSpecialityInRotation = {
 
 export type SpecialityInRotation = {
   description: string;
+};
+
+export type LocationInRotation = {
+  location_id: number;
+  name: string;
 };
