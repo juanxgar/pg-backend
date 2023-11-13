@@ -443,6 +443,12 @@ export class GroupsService {
           },
           rotation: {
             select: {
+              location: {
+                select: {
+                  location_id: true,
+                  name: true,
+                },
+              },
               rotation_id: true,
               start_date: true,
               finish_date: true,
@@ -493,6 +499,12 @@ export class GroupsService {
           },
           rotation: {
             select: {
+              location: {
+                select: {
+                  location_id: true,
+                  name: true,
+                },
+              },
               rotation_id: true,
               start_date: true,
               finish_date: true,
