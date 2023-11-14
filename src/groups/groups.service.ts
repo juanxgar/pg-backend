@@ -52,37 +52,53 @@ export class GroupsService {
     state: boolean,
     name?: string,
     professor_user_id?: number,
-    isInRotation?: boolean,
+    user_id?: number,
   ): Promise<Array<GroupItem>> {
-    return this.prisma.group.findMany({
-      select: {
-        group_id: true,
-        name: true,
-        state: true,
-        professor_user: true,
-      },
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
+    if (user_id) {
+      const groupsIds = await this.findGroupsIdOfUser(user_id);
+      return this.prisma.group.findMany({
+        select: {
+          group_id: true,
+          name: true,
+          state: true,
+          professor_user: true,
         },
-        professor_user_id: professor_user_id || undefined,
-        state,
-        rotation: isInRotation && {
-          every: {
-            start_date: {
-              lte: new Date(),
-            },
-            finish_date: {
-              gte: new Date(),
-            },
+        where: {
+          name: {
+            contains: name,
+            mode: 'insensitive',
+          },
+          professor_user_id: professor_user_id || undefined,
+          state,
+          group_id: {
+            in: groupsIds,
           },
         },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+        orderBy: {
+          name: 'asc',
+        },
+      });
+    } else {
+      return this.prisma.group.findMany({
+        select: {
+          group_id: true,
+          name: true,
+          state: true,
+          professor_user: true,
+        },
+        where: {
+          name: {
+            contains: name,
+            mode: 'insensitive',
+          },
+          professor_user_id: professor_user_id || undefined,
+          state,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+    }
   }
 
   async findAllPagination(
