@@ -284,8 +284,22 @@ export class RotationsService {
     });
   }
 
+  async findGroupsIdOfUser(student_user_id: number) {
+    const groupsIds = await this.prisma.group_detail.findMany({
+      select: {
+        group_id: true,
+      },
+      where: {
+        user_id: student_user_id,
+      },
+    });
+
+    return groupsIds.map((e) => {
+      return e.group_id;
+    });
+  }
+
   async findAllPagination(
-    state: boolean,
     page: number,
     limit: number,
     group_id?: number,
@@ -293,44 +307,93 @@ export class RotationsService {
     start_date?: string,
     finish_date?: string,
     semester?: number,
+    user_id?: number,
   ): Promise<PaginatedResult<RotationItem>> {
     const paginate: PaginateFunction = paginator({});
-    return paginate(
-      this.prisma.rotation,
-      {
-        page,
-        perPage: limit,
-      },
-      {
-        select: {
-          rotation_id: true,
-          semester: true,
-          start_date: true,
-          finish_date: true,
-          state: true,
-          group: {
-            select: {
-              group_id: true,
-              name: true,
-              state: true,
-              professor_user: true,
+    if (user_id) {
+      const groupIds = await this.findGroupsIdOfUser(user_id);
+      return paginate(
+        this.prisma.rotation,
+        {
+          page,
+          perPage: limit,
+        },
+        {
+          select: {
+            rotation_id: true,
+            semester: true,
+            start_date: true,
+            finish_date: true,
+            state: true,
+            group: {
+              select: {
+                group_id: true,
+                name: true,
+                state: true,
+                professor_user: true,
+              },
             },
+            location: true,
           },
-          location: true,
+          where: {
+            OR: [
+              {
+                group_id: {
+                  in: groupIds,
+                },
+              },
+              {
+                group_id: group_id || undefined,
+              },
+            ],
+
+            location_id: location_id || undefined,
+            start_date: start_date ? new Date(start_date) : undefined,
+            finish_date: finish_date ? new Date(finish_date) : undefined,
+            semester: semester || undefined,
+          },
+          orderBy: {
+            start_date: 'asc',
+          },
         },
-        where: {
-          group_id: group_id || undefined,
-          location_id: location_id || undefined,
-          start_date: start_date ? new Date(start_date) : undefined,
-          finish_date: finish_date ? new Date(finish_date) : undefined,
-          semester: semester || undefined,
-          state,
+      );
+    } else {
+      return paginate(
+        this.prisma.rotation,
+        {
+          page,
+          perPage: limit,
         },
-        orderBy: {
-          start_date: 'asc',
+        {
+          select: {
+            rotation_id: true,
+            semester: true,
+            start_date: true,
+            finish_date: true,
+            state: true,
+            group: {
+              select: {
+                group_id: true,
+                name: true,
+                state: true,
+                professor_user: true,
+              },
+            },
+            location: true,
+          },
+          where: {
+            group_id: group_id || undefined,
+            location_id: location_id || undefined,
+            start_date: start_date ? new Date(start_date) : undefined,
+            finish_date: finish_date ? new Date(finish_date) : undefined,
+            semester: semester || undefined,
+          },
+          orderBy: {
+            start_date: 'asc',
+          },
         },
-      },
-    );
+      );
+    }
   }
 
   async findOne(rotation_id: number): Promise<RotationItem> {
