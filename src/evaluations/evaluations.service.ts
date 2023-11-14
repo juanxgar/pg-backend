@@ -8,13 +8,37 @@ import { EvaluationCreatedResult, MessageResult } from 'src/types/resultTypes';
 export class EvaluationsService {
   constructor(private prisma: PrismaService) {}
 
+  async findRotationIdByStudentAndSpeciality(
+    student_user_id: number,
+    rotation_speciality_id: number,
+  ): Promise<number> {
+    const rotationDateId = await this.prisma.rotation_date.findFirst({
+      where: {
+        student_user_id,
+        rotation_speciality_id,
+      },
+    });
+    if (!rotationDateId) {
+      throw new HttpException(
+        'Fecha de rotación de estudiante no encontrada',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return rotationDateId.rotation_date_id;
+  }
+
   async create(
     createEvaluationDto: CreateEvaluationDto,
   ): Promise<MessageResult> {
-    const { student_grades, ...rest } = createEvaluationDto;
+    const { student_grades, student_user_id, ...rest } = createEvaluationDto;
 
+    const rotationDateId = await this.findRotationIdByStudentAndSpeciality(
+      student_user_id,
+      rest.rotation_speciality_id,
+    );
+    const data = { rotation_date_id: rotationDateId, ...rest };
     const evaluation = await this.prisma.evalution.create({
-      data: rest,
+      data,
     });
 
     student_grades.forEach((e) => {
