@@ -6,7 +6,7 @@ export class CreateEvaluationDto {
   rotation_speciality_id: number;
 
   @ApiProperty()
-  rotation_date_id: number;
+  student_user_id: number;
 
   @ApiProperty()
   professor_comments: string;
