@@ -117,12 +117,11 @@ export class RotationsController {
     @Query('start_date') start_date?: string,
     @Query('finish_date') finish_date?: string,
     @Query('semester') semester?: string,
-    @Query('state') state = 'true',
+    @Query('user_id') user_id?: string,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ): Promise<PaginatedResult<RotationItem>> {
     return this.rotationsService.findAllPagination(
-      JSON.parse(state),
       +page,
       +limit,
       +group_id,
@@ -130,6 +129,7 @@ export class RotationsController {
       start_date,
       finish_date,
       +semester,
+      +user_id,
     );
   }
 
