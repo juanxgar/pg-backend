@@ -681,6 +681,21 @@ export class RotationsService {
         return e.rotation_speciality_id;
       });
 
+    let numberRotationDatesInEvaluations = 0;
+    for (let e of rotationDatesId) {
+      numberRotationDatesInEvaluations = await this.prisma.evalution.count({
+        where: {
+          rotation_date_id: e,
+        },
+      });
+      if (numberRotationDatesInEvaluations > 0) {
+        throw new HttpException(
+          'Rotación no puede ser eliminada. Ya tiene evaluaciones creadas',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     if (rotationDatesId.length > 0) {
       await this.prisma.rotation_date.deleteMany({
         where: {
