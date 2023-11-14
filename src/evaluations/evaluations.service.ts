@@ -49,6 +49,22 @@ export class EvaluationsService {
       data: student_grades,
     });
 
+    let sum = 0;
+    student_grades.forEach((e) => {
+      sum = sum + e.grade_value;
+    });
+
+    const prom = sum / student_grades.length;
+
+    await this.prisma.evalution.update({
+      where: {
+        evaluation_id: evaluation.evaluation_id,
+      },
+      data: {
+        grade_value: prom,
+      },
+    });
+
     return {
       message: 'Evaluación creada correctamente',
     };
@@ -150,6 +166,22 @@ export class EvaluationsService {
         },
       });
     }
+
+    let sum = 0;
+    student_grades.forEach((e) => {
+      sum = sum + e.grade_value;
+    });
+
+    const prom = sum / student_grades.length;
+
+    await this.prisma.evalution.update({
+      where: {
+        evaluation_id: evaluation.evaluation_id,
+      },
+      data: {
+        grade_value: prom,
+      },
+    });
 
     return {
       message: 'Evaluación actualizada correctamente',
