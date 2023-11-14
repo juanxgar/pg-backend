@@ -66,13 +66,13 @@ export class GroupsController {
     @Query('name') name?: string,
     @Query('professor_user_id') professor_user_id?: string,
     @Query('state') state = 'true',
-    @Query('isInRotation') isInRotation?: boolean,
+    @Query('user_id') user_id?: string,
   ): Promise<Array<GroupItem>> {
     return this.groupsService.findAll(
       JSON.parse(state),
       name,
       +professor_user_id,
-      isInRotation,
+      +user_id,
     );
   }
 
