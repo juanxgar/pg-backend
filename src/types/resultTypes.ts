@@ -1,8 +1,4 @@
-import {
-  RotationSpecialityItem,
-  SpecialityItem,
-  UserItem,
-} from './entitiesTypes';
+import { SpecialityItem, UserItem } from './entitiesTypes';
 
 export type LoginResult = {
   token: string;

@@ -414,10 +414,31 @@ export class GroupsService {
     });
   }
 
+  async findGroupsIdOfUser(student_user_id: number) {
+    const groupsIds = await this.prisma.group_detail.findMany({
+      select: {
+        group_id: true,
+      },
+      where: {
+        user_id: student_user_id,
+      },
+    });
+
+    return groupsIds.map((e) => {
+      return e.group_id;
+    });
+  }
+
   async findGroupsRotation(
     isCurrently: boolean,
+    student_user_id?: number,
   ): Promise<Array<GroupInRotation>> {
     const groupsIds = await this.findGroupsIdsInRotation();
+    let groupsIdsUser = [];
+    if (student_user_id) {
+      groupsIdsUser = await this.findGroupsIdOfUser(student_user_id);
+    }
+    const ids = groupsIds.concat(groupsIdsUser);
     if (isCurrently) {
       return this.prisma.group.findMany({
         select: {
@@ -467,7 +488,7 @@ export class GroupsService {
         },
         where: {
           group_id: {
-            in: groupsIds,
+            in: ids,
           },
         },
         orderBy: {
@@ -523,7 +544,7 @@ export class GroupsService {
         },
         where: {
           group_id: {
-            notIn: groupsIds,
+            notIn: ids,
           },
         },
         orderBy: {

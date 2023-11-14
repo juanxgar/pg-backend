@@ -211,7 +211,11 @@ export class GroupsController {
   })
   findGroupsInRotation(
     @Query('isCurrently') isCurrently = 'true',
+    @Query('student_user_id') student_user_id?: string,
   ): Promise<Array<GroupInRotation>> {
-    return this.groupsService.findGroupsRotation(JSON.parse(isCurrently));
+    return this.groupsService.findGroupsRotation(
+      JSON.parse(isCurrently),
+      +student_user_id,
+    );
   }
 }
