@@ -577,15 +577,6 @@ export class RotationsService {
         group_id: updateRotationDto.group_id,
       },
     });
-    if (
-      rotationAlreadyExists &&
-      rotationAlreadyExists.group_id != rotation.group_id
-    ) {
-      throw new HttpException(
-        'El grupo seleccionado ya tiene asignada una rotación en las fechas definidas',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
 
     //Find by dates
     rotationAlreadyExists = await this.prisma.rotation.findFirst({
@@ -819,8 +810,8 @@ export class RotationsService {
   //Used for dates of rotation. To know if there are specialities availables in selected dates
   async findAvailableCapacity(
     rotation_speciality_id: number,
-    start_date: number,
-    finish_date: number,
+    start_date: string,
+    finish_date: string,
   ): Promise<number> {
     const usedCapacity = await this.prisma.rotation_date.count({
       where: {

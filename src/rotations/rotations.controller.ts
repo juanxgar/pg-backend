@@ -213,8 +213,8 @@ export class RotationsController {
   })
   findAvailableCapacity(
     @Query('rotation_speciality_id') rotation_speciality_id: number,
-    @Query('start_date') start_date: number,
-    @Query('finish_date') finish_date: number,
+    @Query('start_date') start_date: string,
+    @Query('finish_date') finish_date: string,
   ): Promise<number> {
     return this.rotationsService.findAvailableCapacity(
       rotation_speciality_id,

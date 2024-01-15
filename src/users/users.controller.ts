@@ -26,7 +26,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PaginationDto } from 'src/util/Pagination.dto';
 import { MessageResult, PaginatedResult } from 'src/types/resultTypes';
 import { UserItem } from 'src/types/entitiesTypes';
-import { DecodedToken } from 'src/types/types';
 
 @ApiBearerAuth()
 @ApiTags('Users')
